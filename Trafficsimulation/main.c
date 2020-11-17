@@ -1,6 +1,6 @@
 #include <stdio.h>
 
 int main() {
-    printf("Hello, World! test\n");
+    printf("Simulate traffic lights\n");
     return 0;
 }
