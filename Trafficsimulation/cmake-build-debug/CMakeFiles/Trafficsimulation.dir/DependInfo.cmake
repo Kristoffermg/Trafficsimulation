@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "C:/Users/Kristoffer/Dropbox/Auni/Trafficsimulation/main.c" "C:/Users/Kristoffer/Dropbox/Auni/Trafficsimulation/cmake-build-debug/CMakeFiles/Trafficsimulation.dir/main.c.obj"
+  "C:/Users/Kristoffer/Documents/GitHub/Trafficsimulation/Trafficsimulation/main.c" "C:/Users/Kristoffer/Documents/GitHub/Trafficsimulation/Trafficsimulation/cmake-build-debug/CMakeFiles/Trafficsimulation.dir/main.c.obj"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 
