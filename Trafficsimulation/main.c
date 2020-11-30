@@ -10,6 +10,7 @@ struct Car {
     double start_time;
     int route;
     float current_position;
+    int driving_direction; /* bruger enum directions værdier */
 };
 
 struct Intersection {
