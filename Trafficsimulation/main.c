@@ -1,6 +1,34 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX_SPEED 14 /* 50km/t i m/s */
+#define CAR_LENGTH 4 /* meter */
+
+struct Car {
+    double current_speed;
+    double start_time;
+    int route;
+    float current_position;
+};
+
+struct Intersection {
+    int is_traffic_light;
+    int road_connections; /* 0: nordpå, 1: sydpå, 2: begge */
+};
+
+struct Car_Route {
+    int start_position;
+    int test[5];
+    
+};
+
+typedef Car_Route Car_Route;
+
+enum direction { North, South, East, West };
 
 int main() {
-    printf("Hello, World!\n");
-    return 0;
+    Car_Route cr;
+    
+    return EXIT_SUCCESS;
 }
