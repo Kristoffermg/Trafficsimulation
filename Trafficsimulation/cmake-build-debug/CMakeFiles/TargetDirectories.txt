@@ -1,3 +1,0 @@
-C:/Users/Kristoffer/Dropbox/Auni/Trafficsimulation/cmake-build-debug/CMakeFiles/Trafficsimulation.dir
-C:/Users/Kristoffer/Dropbox/Auni/Trafficsimulation/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Kristoffer/Dropbox/Auni/Trafficsimulation/cmake-build-debug/CMakeFiles/rebuild_cache.dir
