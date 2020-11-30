@@ -20,8 +20,7 @@ struct Intersection {
 
 struct Car_Route {
     int start_position;
-    int test[5];
-    
+    int intersections[5];
 };
 
 typedef Car_Route Car_Route;
