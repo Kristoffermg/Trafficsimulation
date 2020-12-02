@@ -37,6 +37,8 @@ int main() {
     double time;
     Car_Route cr;
 
+    get_route(&cr);
+
     Car car;
     Car car1;
     car1 = Create_Car(car);
@@ -65,8 +67,6 @@ int Run_Car(Car *car, double time) {
         printf("bil færdig tid: %lf",time - car->start_time);
         return 1;
     }
-
-    get_route(&cr);
 }
 
 void get_route(Car_Route *cr) {
