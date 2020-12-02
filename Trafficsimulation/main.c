@@ -24,11 +24,47 @@ struct Car_Route {
 };
 
 typedef struct Car_Route Car_Route;
+typedef struct Car Car;
+
 
 enum direction { North, South, East, West };
+Car Create_Car(Car car);
+int Run_Car(Car *car, double time);
 
 int main() {
+    double time;
     Car_Route cr;
+    Car car;
+    Car car1;
+    car1 = Create_Car(car);
+    while (Run_Car(&car1,time) != 1)
+    {
+        time++;
+    }
     
     return EXIT_SUCCESS;
+}
+
+Car Create_Car(Car car)
+{
+car.current_position = 0;
+car.start_time = 0;
+car.route = 5;
+return car;
+}
+
+int Run_Car(Car *car, double time)
+{
+    if (car->current_position < 800)
+    {
+    car->current_speed = MAX_SPEED;
+    car->current_position = car->current_position + car->current_speed;
+    printf("position: %lf tid: %lf\n",car->current_position,time);
+    return 0;
+    }
+    else if (car->current_position > 800)
+    {
+    printf("bil færdig tid: %lf",time - car->start_time);
+    return 1;
+    }
 }
