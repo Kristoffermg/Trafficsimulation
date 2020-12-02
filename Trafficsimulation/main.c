@@ -28,7 +28,12 @@ typedef struct Car_Route Car_Route;
 enum direction { North, South, East, West };
 
 int main() {
-    Car_Route cr;
+    get_route();
+
     
     return EXIT_SUCCESS;
+}
+
+void get_route() {
+    Car_Route.start_positon = 1;
 }
