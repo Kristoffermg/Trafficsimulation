@@ -55,3 +55,4 @@ void get_route(Car_Route *cr) {
         printf("In intersection %d Go %s\n",i+1 , direction);
     }
 }
+
