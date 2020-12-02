@@ -23,7 +23,7 @@ struct Car_Route {
     int intersections[5];
 };
 
-typedef Car_Route Car_Route;
+typedef struct Car_Route Car_Route;
 
 enum direction { North, South, East, West };
 
