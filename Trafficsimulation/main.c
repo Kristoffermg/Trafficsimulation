@@ -27,10 +27,32 @@ typedef struct Car_Route Car_Route;
 
 enum direction { North, South, East, West };
 
+void get_route(Car_Route *cr);
+
 int main() {
     Car_Route cr;
-    
+    get_route(&cr);
+
     return EXIT_SUCCESS;
 }
 
-/* Test*/
+void get_route(Car_Route *cr) {
+    char *direction;
+    int i;
+
+    cr->start_position = 1;
+
+    cr->intersections[0] = East; cr->intersections[1] = East; cr->intersections[2] = East; cr->intersections[3] = East; cr->intersections[4] = East;
+
+    printf("Starting position = %d\n", cr->start_position);
+    for(i = 0; i < 5; i++) {
+        switch (cr->intersections[i]) {
+            case 0: direction = "North"; break;
+            case 1: direction = "South"; break;
+            case 2: direction = "East"; break;
+            case 3: direction = "West"; break;
+        }
+        printf("In intersection %d Go %s\n",i+1 , direction);
+    }
+}
+
