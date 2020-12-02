@@ -31,9 +31,12 @@ enum direction { North, South, East, West };
 Car Create_Car(Car car);
 int Run_Car(Car *car, double time);
 
+void get_route(Car_Route *cr);
+
 int main() {
     double time;
     Car_Route cr;
+
     Car car;
     Car car1;
     car1 = Create_Car(car);
@@ -66,5 +69,29 @@ int Run_Car(Car *car, double time)
     {
     printf("bil færdig tid: %lf",time - car->start_time);
     return 1;
+    }
+}
+    get_route(&cr);
+
+    return EXIT_SUCCESS;
+}
+
+void get_route(Car_Route *cr) {
+    char *direction;
+    int i;
+
+    cr->start_position = 1;
+
+    cr->intersections[0] = East; cr->intersections[1] = East; cr->intersections[2] = East; cr->intersections[3] = East; cr->intersections[4] = East;
+
+    printf("Starting position = %d\n", cr->start_position);
+    for(i = 0; i < 5; i++) {
+        switch (cr->intersections[i]) {
+            case 0: direction = "North"; break;
+            case 1: direction = "South"; break;
+            case 2: direction = "East"; break;
+            case 3: direction = "West"; break;
+        }
+        printf("In intersection %d Go %s\n",i+1 , direction);
     }
 }
