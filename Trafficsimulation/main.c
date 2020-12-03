@@ -31,6 +31,7 @@ Cars Create_Car(Cars *car, Car_Route *cr);
 int Run_Car(Cars *car, double time, Car_Route *cr);
 int driving_direction(Cars car, Car_Route cr, int n);
 void get_route(Car_Route *cr);
+int car_turning(Cars *car, double time, Car_Route *cr);
 
 int main() {
     double time;
@@ -66,19 +67,7 @@ int Run_Car(Cars *car, double time, Car_Route *cr) {
     car->current_position = car->current_position + car->current_speed;
     printf("position: %lf tid: %lf\n", car->current_position,time);
 
-    if(car->current_position > 100 && car->current_position < 125) {
-        car->driving_direction = driving_direction(*car, *cr, 0);
-    }
-    else if(car->current_position > 200 && car->current_position < 225) {
-        car->driving_direction = driving_direction(*car, *cr, 1);
-        printf("bil drejer tid: %lf", time - car->start_time);
-        return 1;
-    }
-    else if (car->current_position > 800) {
-        printf("bil færdig tid: %lf", time - car->start_time);
-    }
-    else
-        return 0;
+    car_turning(car, time, cr);
 }
 
 void get_route(Car_Route *cr) {
@@ -108,4 +97,20 @@ int driving_direction(Cars car, Car_Route cr, int n) {
         case 2: return 2; break;
         case 3: return 3; break;
     }
+}
+
+int car_turning(Cars *car, double time, Car_Route *cr){
+    if(car->current_position > 100 && car->current_position < 125) {
+        car->driving_direction = driving_direction(*car, *cr, 0);
+    }
+    else if(car->current_position > 200 && car->current_position < 225) {
+        car->driving_direction = driving_direction(*car, *cr, 1);
+        printf("bil drejer tid: %lf", time - car->start_time);
+        return 1;
+    }
+    else if (car->current_position > 800) {
+        printf("bil færdig tid: %lf", time - car->start_time);
+    }
+    else
+        return 0;
 }
