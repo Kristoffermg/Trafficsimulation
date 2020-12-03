@@ -5,6 +5,7 @@
 #define MAX_SPEED 14 /* 50km/t i m/s */
 #define CAR_LENGTH 4 /* meter */
 #define MAX_CARS 100
+#define MAX_ROUTES 20
 
 typedef struct Cars {
     double current_speed;
@@ -29,22 +30,21 @@ enum direction { North, South, East, West };
 Cars Create_Car(Cars *car, Car_Route *cr);
 int Run_Car(Cars *car, double time, Car_Route *cr);
 int driving_direction(Cars car, Car_Route cr, int n);
-
 void get_route(Car_Route *cr);
 
 int main() {
     double time;
-    Car_Route cr;
+    Car_Route cr[MAX_ROUTES];
     Cars car[MAX_CARS];
     int i;
 
 
-    get_route(&cr);
+    get_route(cr);
     for(i=0; i<MAX_CARS; i++){
-    car[i] = Create_Car(car, &cr);
+    car[i] = Create_Car(car, cr);
     }
 
-    while (Run_Car(&car[1], time, &cr) != 1) {
+    while (Run_Car(&car[1], time, cr) != 1) {
         time++;
     }
     
