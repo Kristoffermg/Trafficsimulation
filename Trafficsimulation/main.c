@@ -59,7 +59,7 @@ Car Create_Car(Car car, Car_Route *cr) {
 }
 
 int Run_Car(Car *car, double time, Car_Route *cr) {
-    printf("Driving drirection %d ", car->driving_direction);
+    printf("Driving direction %d ", car->driving_direction);
 
     car->current_speed = MAX_SPEED;
     car->current_position = car->current_position + car->current_speed;
