@@ -4,6 +4,7 @@
 
 #define MAX_SPEED 14 /* 50km/t i m/s */
 #define CAR_LENGTH 4 /* meter */
+#define MAX_CARS 100
 
 typedef struct Cars {
     double current_speed;
@@ -11,7 +12,6 @@ typedef struct Cars {
     int route;
     float current_position;
     int driving_direction; /* bruger enum directions værdier */
-    int length;
 } Cars;
 
 struct Intersection {
@@ -19,47 +19,47 @@ struct Intersection {
     int road_connections; /* 0: nordpå, 1: sydpå, 2: begge */
 };
 
-typedef struct Car_Routes {
+typedef struct Car_Route {
     int start_position;
     int intersections[5];
-} Car_Routes;
+} Car_Route;
 
 
 enum direction { North, South, East, West };
-Cars Create_Car(Cars car, Car_Routes *cr);
-int Run_Car(Cars *car, double time, Car_Routes *cr);
-int driving_direction(Cars car, Car_Routes cr, int n);
+Cars Create_Car(Cars *car, Car_Route *cr);
+int Run_Car(Cars *car, double time, Car_Route *cr);
+int driving_direction(Cars car, Car_Route cr, int n);
 
-void get_route(Car_Routes *cr);
+void get_route(Car_Route *cr);
 
 int main() {
     double time;
-    Car_Routes cr;
-    Cars car;
-    Cars car1;
-    
+    Car_Route cr;
+    Cars car[MAX_CARS];
+    int i;
+
+
     get_route(&cr);
+    for(i=0; i<MAX_CARS; i++){
+    car[i] = Create_Car(car, &cr);
+    }
 
-    car = Create_Car(car, &cr);
-
-    while (Run_Car(&car, time, &cr) != 1) {
+    while (Run_Car(&car[1], time, &cr) != 1) {
         time++;
     }
     
     return EXIT_SUCCESS;
 }
 
-
-Cars Create_Car(Cars car, Car_Routes *cr) {
-    car.current_position = cr->start_position;
-    car.start_time = 0;
-    car.route = 1;
-    car.driving_direction = 2;
-    car.length = CAR_LENGTH;
-    return car;
+Cars Create_Car(Cars *car, Car_Route *cr) {
+    car->current_position = cr->start_position;
+    car->start_time = 0;
+    car->route = 1;
+    car->driving_direction = 2;
+    return *car;
 }
 
-int Run_Car(Cars *car, double time, Car_Routes *cr) {
+int Run_Car(Cars *car, double time, Car_Route *cr) {
     printf("Driving direction %d ", car->driving_direction);
 
     car->current_speed = MAX_SPEED;
@@ -81,7 +81,7 @@ int Run_Car(Cars *car, double time, Car_Routes *cr) {
         return 0;
 }
 
-void get_route(Car_Routes *cr) {
+void get_route(Car_Route *cr) {
     char *direction;
     int i;
 
@@ -101,7 +101,7 @@ void get_route(Car_Routes *cr) {
     }
 }
 
-int driving_direction(Cars car, Car_Routes cr, int n) {
+int driving_direction(Cars car, Car_Route cr, int n) {
     switch(cr.intersections[n]) {
         case 0: return 0; break;
         case 1: return 1; break;
