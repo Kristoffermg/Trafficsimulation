@@ -5,26 +5,24 @@
 #define MAX_SPEED 14 /* 50km/t i m/s */
 #define CAR_LENGTH 4 /* meter */
 
-struct Car {
+typedef struct Car {
     double current_speed;
     double start_time;
     int route;
     float current_position;
     int driving_direction; /* bruger enum directions værdier */
-};
+} Car;
 
 struct Intersection {
     int is_traffic_light;
     int road_connections; /* 0: nordpå, 1: sydpå, 2: begge */
 };
 
-struct Car_Route {
+typedef struct Car_Route {
     int start_position;
     int intersections[5];
-};
+} Car_Route;
 
-typedef struct Car_Route Car_Route;
-typedef struct Car Car;
 
 enum direction { North, South, East, West };
 Car Create_Car(Car car, Car_Route *cr);
@@ -36,11 +34,11 @@ void get_route(Car_Route *cr);
 int main() {
     double time;
     Car_Route cr;
+    Car car;
+    Car car1;
 
     get_route(&cr);
 
-    Car car;
-    Car car1;
     car = Create_Car(car, &cr);
 
     while (Run_Car(&car, time, &cr) != 1) {
