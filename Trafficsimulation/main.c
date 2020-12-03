@@ -5,38 +5,39 @@
 #define MAX_SPEED 14 /* 50km/t i m/s */
 #define CAR_LENGTH 4 /* meter */
 
-typedef struct Car {
+typedef struct Cars {
     double current_speed;
     double start_time;
     int route;
     float current_position;
     int driving_direction; /* bruger enum directions værdier */
-} Car;
+    int length;
+} Cars;
 
 struct Intersection {
     int is_traffic_light;
     int road_connections; /* 0: nordpå, 1: sydpå, 2: begge */
 };
 
-typedef struct Car_Route {
+typedef struct Car_Routes {
     int start_position;
     int intersections[5];
-} Car_Route;
+} Car_Routes;
 
 
 enum direction { North, South, East, West };
-Car Create_Car(Car car, Car_Route *cr);
-int Run_Car(Car *car, double time, Car_Route *cr);
-int driving_direction(Car car, Car_Route cr, int n);
+Cars Create_Car(Cars car, Car_Routes *cr);
+int Run_Car(Cars *car, double time, Car_Routes *cr);
+int driving_direction(Cars car, Car_Routes cr, int n);
 
-void get_route(Car_Route *cr);
+void get_route(Car_Routes *cr);
 
 int main() {
     double time;
-    Car_Route cr;
-    Car car;
-    Car car1;
-
+    Car_Routes cr;
+    Cars car;
+    Cars car1;
+    
     get_route(&cr);
 
     car = Create_Car(car, &cr);
@@ -48,15 +49,17 @@ int main() {
     return EXIT_SUCCESS;
 }
 
-Car Create_Car(Car car, Car_Route *cr) {
+
+Cars Create_Car(Cars car, Car_Routes *cr) {
     car.current_position = cr->start_position;
     car.start_time = 0;
     car.route = 1;
     car.driving_direction = 2;
+    car.length = CAR_LENGTH;
     return car;
 }
 
-int Run_Car(Car *car, double time, Car_Route *cr) {
+int Run_Car(Cars *car, double time, Car_Routes *cr) {
     printf("Driving direction %d ", car->driving_direction);
 
     car->current_speed = MAX_SPEED;
@@ -78,7 +81,7 @@ int Run_Car(Car *car, double time, Car_Route *cr) {
         return 0;
 }
 
-void get_route(Car_Route *cr) {
+void get_route(Car_Routes *cr) {
     char *direction;
     int i;
 
@@ -98,7 +101,7 @@ void get_route(Car_Route *cr) {
     }
 }
 
-int driving_direction(Car car, Car_Route cr, int n) {
+int driving_direction(Cars car, Car_Routes cr, int n) {
     switch(cr.intersections[n]) {
         case 0: return 0; break;
         case 1: return 1; break;
