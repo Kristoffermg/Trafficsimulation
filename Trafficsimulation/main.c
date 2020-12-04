@@ -51,7 +51,7 @@ int main() {
     while (Run_Car(&car[1], time, cr, All_Times) != 1) {
         time++;
     }
-    
+    printf("Test af return_time: skal være ligemed n's bils tid: %d\n ",All_Times[0]);
     return EXIT_SUCCESS;
 }
 
@@ -109,10 +109,12 @@ int car_turning(Cars *car, double time, Car_Route *cr, int *All_Times){
     else if(car->current_position > 200 && car->current_position < 225) {
         car->driving_direction = driving_direction(*car, *cr, 1);
         printf("bil drejer tid: %lf", time - car->start_time);
+        Return_Time(time - car->start_time, All_Times);
         return 1;
     }
     else if (car->current_position > 800) {
-        printf("bil færdig tid: %lf", time - car->start_time);
+        printf("bil færdig tid: %lf\n", time - car->start_time);
+        Return_Time(time - car->start_time, All_Times);
     }
     else
         return 0;
