@@ -50,6 +50,7 @@ int main() {
     car[i] = Create_Car(car, cr);
     }
 
+    printf("Koersel af bil: ---------\n");
     while (Run_Car(&car[1], time, cr, All_Times) != 1) {
         time++;
     }
@@ -87,10 +88,12 @@ void get_route(Car_Route *cr) {
     cr->intersections[3] = OutOfSystem; 
     cr->intersections[4] = OutOfSystem;
 
+    printf("\nRoute:  ---------\n");
     printf("Starting position = %d\n", cr->start_position);
     for(i = 0; i < 5; i++) {
         if(cr->intersections[i] == OutOfSystem) {
-            printf("Done with route, out of system\n");
+            printf("Done with route, out of system.\n");
+            printf("Route end: --------- \n\n");
             break;
         }
         switch (cr->intersections[i]) {
