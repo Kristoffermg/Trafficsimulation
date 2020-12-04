@@ -6,6 +6,7 @@
 #define CAR_LENGTH 4 /* meter */
 #define MAX_CARS 100
 #define MAX_ROUTES 20
+#define MAX_TIME_VALUES 5000
 
 typedef struct Cars {
     double current_speed;
@@ -26,17 +27,21 @@ typedef struct Car_Route {
 } Car_Route;
 
 
-enum direction { North, South, East, West };
+enum direction { North, South, East, West, OutOfSystem };
+
 Cars Create_Car(Cars *car, Car_Route *cr);
-int Run_Car(Cars *car, double time, Car_Route *cr);
+
+int Run_Car(Cars *car, double time, Car_Route *cr, int *All_Times);
 int driving_direction(Cars car, Car_Route cr, int n);
 void get_route(Car_Route *cr);
-int car_turning(Cars *car, double time, Car_Route *cr);
+int car_turning(Cars *car, double time, Car_Route *cr, int *All_Times);
+void Return_Time(int Car_Time, int *All_Times);
 
 int main() {
     double time;
     Car_Route cr[MAX_ROUTES];
     Cars car[MAX_CARS];
+    int All_Times[MAX_TIME_VALUES];
     int i;
 
 
@@ -45,7 +50,8 @@ int main() {
     car[i] = Create_Car(car, cr);
     }
 
-    while (Run_Car(&car[1], time, cr) != 1) {
+    printf("Koersel af bil: ---------\n");
+    while (Run_Car(&car[1], time, cr, All_Times) != 1) {
         time++;
     }
     
@@ -60,14 +66,14 @@ Cars Create_Car(Cars *car, Car_Route *cr) {
     return *car;
 }
 
-int Run_Car(Cars *car, double time, Car_Route *cr) {
+int Run_Car(Cars *car, double time, Car_Route *cr, int *All_Times) {
     printf("Driving direction %d ", car->driving_direction);
 
     car->current_speed = MAX_SPEED;
     car->current_position = car->current_position + car->current_speed;
     printf("position: %lf tid: %lf\n", car->current_position,time);
 
-    car_turning(car, time, cr);
+    car_turning(car, time, cr,All_Times);
 }
 
 void get_route(Car_Route *cr) {
@@ -76,10 +82,20 @@ void get_route(Car_Route *cr) {
 
     cr->start_position = 0;
 
-    cr->intersections[0] = East; cr->intersections[1] = North; cr->intersections[2] = East; cr->intersections[3] = East; cr->intersections[4] = East;
+    cr->intersections[0] = East; 
+    cr->intersections[1] = North; 
+    cr->intersections[2] = OutOfSystem; 
+    cr->intersections[3] = OutOfSystem; 
+    cr->intersections[4] = OutOfSystem;
 
+    printf("\nRoute:  ---------\n");
     printf("Starting position = %d\n", cr->start_position);
     for(i = 0; i < 5; i++) {
+        if(cr->intersections[i] == OutOfSystem) {
+            printf("Done with route, out of system.\n");
+            printf("Route end: --------- \n\n");
+            break;
+        }
         switch (cr->intersections[i]) {
             case 0: direction = "North"; break;
             case 1: direction = "South"; break;
@@ -99,7 +115,7 @@ int driving_direction(Cars car, Car_Route cr, int n) {
     }
 }
 
-int car_turning(Cars *car, double time, Car_Route *cr){
+int car_turning(Cars *car, double time, Car_Route *cr, int *All_Times){
     if(car->current_position > 100 && car->current_position < 125) {
         car->driving_direction = driving_direction(*car, *cr, 0);
     }
@@ -113,4 +129,14 @@ int car_turning(Cars *car, double time, Car_Route *cr){
     }
     else
         return 0;
+}
+
+void Return_Time(int Car_Time, int *All_Times)
+{
+    /*Static siden counteren skal tælle 1 op hver gang funktionen kaldes */
+    static int Car_Count = 0;
+    All_Times[Car_Count] = Car_Time;
+    Car_Count++;
+
+    
 }
