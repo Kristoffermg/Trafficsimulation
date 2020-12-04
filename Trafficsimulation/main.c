@@ -57,7 +57,7 @@ int main() {
     while (Run_Car(&car[1], time, cr, All_Times) != 1) {
         time++;
     }
-    
+    printf("Test af return_time: skal være ligemed n's bils tid: %d\n ",All_Times[0]);
     return EXIT_SUCCESS;
 }
 
