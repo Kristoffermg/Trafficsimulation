@@ -27,8 +27,10 @@ typedef struct Car_Route {
 } Car_Route;
 
 
-enum direction { North, South, East, West };
+enum direction { North, South, East, West, OutOfSystem };
+
 Cars Create_Car(Cars *car, Car_Route *cr);
+
 int Run_Car(Cars *car, double time, Car_Route *cr, int *All_Times);
 int driving_direction(Cars car, Car_Route cr, int n);
 void get_route(Car_Route *cr);
@@ -79,10 +81,18 @@ void get_route(Car_Route *cr) {
 
     cr->start_position = 0;
 
-    cr->intersections[0] = East; cr->intersections[1] = North; cr->intersections[2] = East; cr->intersections[3] = East; cr->intersections[4] = East;
+    cr->intersections[0] = East; 
+    cr->intersections[1] = North; 
+    cr->intersections[2] = OutOfSystem; 
+    cr->intersections[3] = OutOfSystem; 
+    cr->intersections[4] = OutOfSystem;
 
     printf("Starting position = %d\n", cr->start_position);
     for(i = 0; i < 5; i++) {
+        if(cr->intersections[i] == OutOfSystem) {
+            printf("Done with route, out of system\n");
+            break;
+        }
         switch (cr->intersections[i]) {
             case 0: direction = "North"; break;
             case 1: direction = "South"; break;
