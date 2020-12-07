@@ -34,77 +34,72 @@ enum direction { North, South, East, West, OutOfSystem };
 
 Cars Create_Car(Cars *car, Car_Route *cr);
 
-int Run_Car(Cars *car, double time, Car_Route *cr, int *All_Times);
+int Run_Car(Cars *car, double time, Car_Route *cr, int *all_times);
 //int driving_direction(Cars car, Car_Route cr, int n);
-void get_route(Car_Route *cr);
-int car_turning(Cars *car, double time, Car_Route *cr, int *All_Times);
-void Return_Time(int Car_Time, int *All_Times);
+void Get_Route(Car_Route *cr);
+void Print_Route_Summary(Car_Route *cr);
+int Car_Turning(Cars *car, double time, Car_Route *cr, int *all_times);
+void Return_Time(int car_time, int *all_times);
 int Int_Convert(char *temp_intersections);
 
 int main() {
     double time;
-    Car_Route cr[MAX_ROUTES];
+    Car_Route cr[MAX_ROUTES]; /* cr = car route */
     Cars car[MAX_CARS];
-    int All_Times[MAX_TIME_VALUES];
+    int all_times[MAX_TIME_VALUES];
     int i;
 
-    get_route(cr);
-    for(i=0; i<MAX_CARS; i++){
-    car[i] = Create_Car(car, cr);
+    Get_Route(cr);
+    for(i = 0; i < MAX_CARS; i++){
+        car[i] = Create_Car(car, cr);
     }
 
-    printf("Koersel af bil: ---------\n");
-    while (Run_Car(&car[1], time, cr, All_Times) != 1) {
+    printf("Car init: ---------\n");
+    while (Run_Car(&car[1], time, cr, all_times) != 1) {
         time++;
     }
-    printf("Test af return_time: skal være ligemed n's bils tid: %d\n ",All_Times[0]);
+    
     return EXIT_SUCCESS;
 }
 
 Cars Create_Car(Cars *car, Car_Route *cr) {
-    car->current_position = cr->start_position;
-    car->start_time = 0;
-    car->route = 1;
-    car->driving_direction = 2;
+    car -> current_position = cr  ->  start_position;
+    car -> start_time = 0;
+    car -> route = 1;
+    car -> driving_direction = 2;
     return *car;
 }
 
-int Run_Car(Cars *car, double time, Car_Route *cr, int *All_Times) {
-    printf("Driving direction %d ", car->driving_direction);
+int Run_Car(Cars *car, double time, Car_Route *cr, int *all_times) {
+    printf("Driving direction %d ", car -> driving_direction);
 
-    car->current_speed = MAX_SPEED;
-    car->current_position = car->current_position + car->current_speed;
-    printf("position: %lf tid: %lf\n", car->current_position,time);
+    car -> current_speed = MAX_SPEED;
+    car -> current_position = car -> current_position + car -> current_speed;
+    printf("Position: %lf tid: %lf\n", car -> current_position,time);
 
-    car_turning(car, time, cr,All_Times);
+    return Car_Turning(car, time, cr,all_times);
 }
 
-void get_route(Car_Route *cr) {
-    char *direction;
-    char c;
-    char route[MAX_STRING_LENGTH];
-    char t_route[2];
-    char t_startpos[2];
-    char t_int1[2]; char t_int2[2]; char t_int3[2]; char t_int4[2]; char t_int5[2];
+void Get_Route(Car_Route *cr) {
     int i;
-    int j;
 
     FILE *routes_file_pointer;
     routes_file_pointer = fopen("Routes.txt", "r");
 
-    for(i = 0; i < MAX_ROUTES; i++) {
-        fgets(route, MAX_STRING_LENGTH, routes_file_pointer);
-        //printf("%s\n", route);
-        sscanf(route," %1s %1s %1s %1s %1s %1s %1s", t_route, t_startpos, t_int1, t_int2, t_int3, t_int4, t_int5);   
-
-        cr[i].route_number = Int_Convert(t_route);
-        cr[i].start_position = Int_Convert(t_startpos);
-        cr[i].intersections[0] = Int_Convert(t_int1);
-        cr[i].intersections[1] = Int_Convert(t_int2);
-        cr[i].intersections[2] = Int_Convert(t_int3);
-        cr[i].intersections[3] = Int_Convert(t_int4);
-        cr[i].intersections[4] = Int_Convert(t_int5);
+    for(i = 0; i < MAX_ROUTES; i++) {  
+        fscanf(routes_file_pointer, " %d %d %d %d %d %d %d", &cr[i].route_number, &cr[i].start_position, &cr[i].intersections[0],
+                                               &cr[i].intersections[1], &cr[i].intersections[2], &cr[i].intersections[3],
+                                               &cr[i].intersections[4]);
     }
+    fclose(routes_file_pointer);
+
+    Print_Route_Summary(cr);
+}
+
+void Print_Route_Summary(Car_Route *cr) {
+    char* direction;
+    int i;
+
     printf("Route number = %d\n", cr[0].route_number);
     printf("Starting position = %d\n", cr[0].start_position);
     for(i = 0; i < 5; i++) {
@@ -120,39 +115,33 @@ void get_route(Car_Route *cr) {
             case 2: direction = "East"; break;
             case 3: direction = "West"; break;
         }
-        printf("In intersection %d Go %s\n",i+1 , direction);
+        printf("In intersection %d go %s\n", i+1, direction);
     }
-    printf("Done with route, out of system.\n");
-    printf("Route end: --------- \n\n");
 }
 
-int car_turning(Cars *car, double time, Car_Route *cr, int *All_Times){
-    if(car->current_position > 100 && car->current_position < 125) {
-        car->driving_direction = cr[0].intersections[0];
+int Car_Turning(Cars *car, double time, Car_Route *cr, int *all_times) {
+    if(car -> current_position >= 100 && car -> current_position <= 125) {
+        car -> driving_direction = cr[0].intersections[0];
     }
-    else if(car->current_position > 200 && car->current_position < 225) {
-        car->driving_direction = cr[0].intersections[1];
-            if(car->driving_direction != 2) {
-                printf("bil drejer tid: %lf", time - car->start_time);
+    else if(car -> current_position >= 200 && car -> current_position <= 225) {
+        car -> driving_direction = cr[0].intersections[1];
+            if(car -> driving_direction != 2) {
+                printf("Car turns at time: %lf", time - car -> start_time);
                 return 1;
             }
     }
-    else if (car->current_position > 800) {
-        printf("bil færdig tid: %lf", time - car->start_time);
+    else if (car -> current_position >= 800) {
+        printf("Car finished at time: %lf", time - car -> start_time);
         return 1;
     }
-    else
-        return 0;
+    return 0;
 }
 
-void Return_Time(int Car_Time, int *All_Times)
-{
-    /*Static siden counteren skal tælle 1 op hver gang funktionen kaldes */
-    static int Car_Count = 0;
-    All_Times[Car_Count] = Car_Time;
-    Car_Count++;
-
-    
+void Return_Time(int car_time, int *all_times) {
+    /* Static siden counteren skal tælle 1 op hver gang funktionen kaldes */
+    static int car_count = 0;
+    all_times[car_count] = car_time;
+    car_count++;
 }
 
 int Int_Convert(char *temp_intersections) {
