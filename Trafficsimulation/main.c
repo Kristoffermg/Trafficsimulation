@@ -39,21 +39,9 @@ int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times);
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route *cr);
 int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times);
+void delay(int number_of_seconds);
 void Return_Time(int car_time, double *all_times, int *car_count);
-
-int Int_Convert(char *temp_intersections);
-
-void delay(int number_of_seconds) 
-{ 
-    /* Converting time into milli_seconds */
-    int milli_seconds = 1000 * number_of_seconds; 
-  
-    /* Storing start time */
-    clock_t start = clock(); 
-  
-    /* Looping till required time is not achieved */
-    while (clock() < start + milli_seconds); 
-} 
+int Average_Time(int *all_times,int *car_count);
 
 int main() {
     double time;
@@ -160,18 +148,24 @@ int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times) {
     return 0;
 }
 
+void delay(int number_of_seconds) { 
+    /* Converting time into milli_seconds */
+    int milli_seconds = 1000 * number_of_seconds; 
+  
+    /* Storing start time */
+    clock_t start = clock(); 
+  
+    /* Looping till required time is not achieved */
+    while (clock() < start + milli_seconds); 
+} 
+
 void Return_Time(int car_time, double *all_times, int *car_count) {
     int i = *car_count;
     all_times[i] = car_time;
     *car_count +=1;
 }
 
-int Int_Convert(char *temp_intersections) {
-    return atoi(temp_intersections);   
-}
-
-
-int Average_Time(int *all_times,int *car_count){
+int Average_Time(int *all_times,int *car_count) {
     int combined_times = 0;
     int average_time;
     int car_count_toint = *car_count;
