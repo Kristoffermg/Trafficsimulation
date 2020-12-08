@@ -40,7 +40,7 @@ void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route *cr);
 int Car_Turning(Cars *car, double time, Car_Route *cr, int *all_times);
 void Return_Time(int car_time, int *all_times, int *car_count);
-int Average_Time(int *all_times,int *car_count);
+double Average_Time(int *all_times,int *car_count);
 int Int_Convert(char *temp_intersections);
 
 int main() {
@@ -50,7 +50,7 @@ int main() {
     int all_times[MAX_TIME_VALUES];
     int i;
     int car_count = 0;
-
+    
     Get_Route(cr);
     for(i = 0; i < MAX_CARS; i++){
         car[i] = Create_Car(car, cr);
@@ -149,17 +149,15 @@ int Int_Convert(char *temp_intersections) {
 }
 
 
-int Average_Time(int *all_times,int *car_count){
-    int combined_times = 0;
-    int average_time;
+double Average_Time(int *all_times,int *car_count){
+    double combined_times = 0;
+    double average_time;
     int car_count_toint = *car_count;
-    int car_amount = 0;
     int i;
     for (i = 0; i < car_count_toint; i++)
     {
         combined_times = combined_times + all_times[i];
-        car_amount ++;
     }
-    average_time = combined_times / car_amount;
+    average_time = combined_times / car_count_toint;
     return average_time;
 }
