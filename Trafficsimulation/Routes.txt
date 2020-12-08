@@ -1,4 +1,6 @@
- 0 0 2 0 4 4 4
+ 0 0 2 2 2 2 2
+ 1 0 2 2 2 2 1
+ 2 0 0 4 4 4 4
 
 Route 1  --  Starting position 360 || Intersetion 0 - West  || Intersetion 1 - West  || Intersetion 2 - West  || Intersetion 3 - West  || Intersetion 4 - West
 Route 2  --  Starting position 0   || Intersetion 0 - East  || Intersetion 1 - North || Intersetion 2 - OutOfSystem  || Intersetion 3 - OutOfSystem  || Intersetion 4 - OutOfSystem
