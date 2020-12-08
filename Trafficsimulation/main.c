@@ -58,7 +58,7 @@ int main() {
         car[i] = Create_Car(car, cr, start);
     }
 
-    printf("Car init: ---------\n");
+    printf("Car innit: ---------\n");
     while (Run_Car(&car[1], time, cr, all_times) != 1) {
         time++;
     }
