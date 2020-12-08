@@ -3,8 +3,8 @@
 #include <time.h>
 
 #define MAX_STRING_LENGTH 1000
-#define MAX_SPEED 14 /* 50km/t i m/s */
-#define CAR_LENGTH 4 /* meter */
+#define MAX_SPEED 14 /* 50 km/t in m/s */
+#define CAR_LENGTH 4 /* meters */
 #define MAX_CARS 100
 #define MAX_ROUTES 1
 #define MAX_INTERSECTIONS 5
@@ -15,12 +15,12 @@ typedef struct Cars {
     double start_time;
     int route;
     float current_position;
-    int driving_direction; /* bruger enum directions værdier */
+    int driving_direction; /* uses enum directions values */
 } Cars;
 
 struct Intersection {
     int is_traffic_light;
-    int road_connections; /* 0: nordpå, 1: sydpå, 2: begge */
+    int road_connections; /* 0: northwards, 1: southwards, 2: both */
 };
 
 typedef struct Car_Route {
@@ -138,7 +138,7 @@ int Car_Turning(Cars *car, double time, Car_Route *cr, int *all_times) {
 }
 
 void Return_Time(int car_time, int *all_times) {
-    /* Static siden counteren skal tælle 1 op hver gang funktionen kaldes */
+    /* Static since the counteren shall count up 1 every time the function is called */
     static int car_count = 0;
     all_times[car_count] = car_time;
     car_count++;
