@@ -32,14 +32,14 @@ typedef struct Car_Route {
 
 enum direction { North, South, East, West, OutOfSystem };
 
-Cars Create_Car(Cars *car, Car_Route *cr);
-int Run_Car(Cars *car, double time, Car_Route *cr, float *all_times);
+Cars Create_Car(Cars *car, Car_Route *cr, clock_t start);
+double Get_Current_Time(clock_t start);
+int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times);
 //int driving_direction(Cars car, Car_Route cr, int n);
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route *cr);
-int Car_Turning(Cars *car, double time, Car_Route *cr, float *all_times);
-float Get_Current_Time(clock_t start);
-void Return_Time(int car_time, float *all_times);
+int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times);
+void Return_Time(int car_time, double *all_times);
 int Int_Convert(char *temp_intersections);
 
 void delay(int number_of_seconds) 
@@ -58,7 +58,7 @@ int main() {
     double time;
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
     Cars car[MAX_CARS];
-    float all_times[MAX_TIME_VALUES];
+    double all_times[MAX_TIME_VALUES];
     int i;
 
     clock_t start = clock(); /* Starts time measurement */
@@ -85,7 +85,12 @@ Cars Create_Car(Cars *car, Car_Route *cr, clock_t start) {
     return *car;
 }
 
-int Run_Car(Cars *car, double time, Car_Route *cr, float *all_times) {
+double Get_Current_Time(clock_t start) {
+    clock_t current = clock();
+    return (double)(start - current); /* Returns time in clocks (1 clock = 1 millisecond)*/
+}
+
+int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times) {
     printf("Driving direction %d ", car -> driving_direction);
 
     car -> current_speed = MAX_SPEED;
@@ -134,7 +139,7 @@ void Print_Route_Summary(Car_Route *cr) {
     }
 }
 
-int Car_Turning(Cars *car, double time, Car_Route *cr, float *all_times) {
+int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times) {
     if(car -> current_position >= 100 && car -> current_position <= 125) {
         car -> driving_direction = cr[0].intersections[0];
     }
@@ -152,12 +157,7 @@ int Car_Turning(Cars *car, double time, Car_Route *cr, float *all_times) {
     return 0;
 }
 
-float Get_Current_Time(clock_t start) {
-    clock_t current = clock();
-    return (float)(start - current); /* Returns time in clocks (1 clock = 1 millisecond)*/
-}
-
-void Return_Time(int car_time, float *all_times) {
+void Return_Time(int car_time, double *all_times) {
     /* Static siden counteren skal tælle 1 op hver gang funktionen kaldes */
     static int car_count = 0;
     all_times[car_count] = car_time;
