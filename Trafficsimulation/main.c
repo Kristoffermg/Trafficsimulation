@@ -39,7 +39,7 @@ int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times);
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route *cr);
 int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times);
-void Return_Time(int car_time, double *all_times);
+void Return_Time(int car_time, double *all_times, int *car_count);
 
 int Int_Convert(char *temp_intersections);
 
