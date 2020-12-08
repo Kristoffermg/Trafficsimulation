@@ -2,20 +2,20 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX_SPEED 14 /* 50km/t i m/s */
-#define CAR_LENGTH 4 /* meter */
+#define MAX_SPEED 14 /* 50km/t in m/s */
+#define CAR_LENGTH 4 /* meters */
 
 struct Car {
     double current_speed;
     double start_time;
     int route;
     float current_position;
-    int driving_direction; /* bruger enum directions værdier */
+    int driving_direction; /* uses enum directions values */
 };
 
 struct Intersection {
     int is_traffic_light;
-    int road_connections; /* 0: nordpå, 1: sydpå, 2: begge */
+    int road_connections; /* 0: northwards, 1: southwards, 2: both */
 };
 
 struct Car_Route {
@@ -62,12 +62,12 @@ int Run_Car(Car *car, double time)
     {
     car->current_speed = MAX_SPEED;
     car->current_position = car->current_position + car->current_speed;
-    printf("position: %lf tid: %lf\n",car->current_position,time);
+    printf("position: %lf time: %lf\n",car->current_position,time);
     return 0;
     }
     else if (car->current_position > 800)
     {
-    printf("bil færdig tid: %lf",time - car->start_time);
+    printf("car finish time: %lf",time - car->start_time);
     return 1;
     }
 }
