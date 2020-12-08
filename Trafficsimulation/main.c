@@ -39,12 +39,11 @@ int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times);
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route *cr);
 int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times);
-void delay(int number_of_seconds);
+void delay(int number_of_milli_seconds);
 void Return_Time(int car_time, double *all_times, int *car_count);
 double Average_Time(int *all_times,int *car_count);
 
 int main() {
-    double time;
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
     Cars car[MAX_CARS];
     double all_times[MAX_TIME_VALUES];
@@ -58,9 +57,9 @@ int main() {
         car[i] = Create_Car(car, cr, start);
     }
 
-    printf("Car innit: ---------\n");
-    while (Run_Car(&car[1], time, cr, all_times) != 1) {
-        time++;
+    printf("Car init: ---------\n");
+    while (Run_Car(&car[1], Get_Current_Time(car[1].start_time), cr, all_times) != 1) {
+        
     }
 
     Return_Time(Get_Current_Time(car[1].start_time), all_times, &car_count);
@@ -78,16 +77,18 @@ Cars Create_Car(Cars *car, Car_Route *cr, clock_t start) {
 
 double Get_Current_Time(clock_t start) {
     clock_t current = clock();
-    return (double)(start - current); /* Returns time in clocks (1 clock = 1 millisecond)*/
+    return (double)(current - start);
 }
+
+double prev_time = 0; // alternativ skal findes
 
 int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times) {
     printf("Driving direction %d ", car -> driving_direction);
 
     car -> current_speed = MAX_SPEED;
-    car -> current_position = car -> current_position + car -> current_speed;
-    printf("Position: %lf tid: %lf\n", car -> current_position,time);
-
+    car -> current_position += car -> current_speed * (time - prev_time); /* distance = speed * time */
+    printf("Position: %lf time: %lf\n", car -> current_position, time);
+    prev_time = time;
     return Car_Turning(car, time, cr,all_times);
 }
 
@@ -148,15 +149,12 @@ int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times) {
     return 0;
 }
 
-void delay(int number_of_seconds) { 
-    /* Converting time into milli_seconds */
-    int milli_seconds = 1000 * number_of_seconds; 
-  
+void delay(int number_of_milli_seconds) { 
     /* Storing start time */
     clock_t start = clock(); 
   
     /* Looping till required time is not achieved */
-    while (clock() < start + milli_seconds); 
+    while (clock() < start + number_of_milli_seconds); 
 } 
 
 void Return_Time(int car_time, double *all_times, int *car_count) {
