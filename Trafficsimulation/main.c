@@ -53,28 +53,47 @@ int Int_Convert(char *temp_intersections);
 
 /* Sammenordningen som opprioriterer 2 grønne lys i streg skal også implementeres*/
 
-void Red_Or_Green(char trafficLightNorthSouth, char trafficLightEastWest, char green, char yellow, char red);
-    /* Der skal være en kort periode hvor begge lys er røde, og gule lys skal tilføjes på et tidspunkt.*/
+void Red_Or_Green(char trafficLight1NorthSouth, char trafficLight1EastWest, char trafficLight2NorthSouth, char trafficLight2EastWest,
+                     char green, char yellow, char red);
+    /* There should be a short period in which both directions have a red light to prevent accidents*/
     const double green = 0, yellow = 1, red = 2;
-    char trafficLightEastWest[3];
-         trafficLightEastWest[0] = green;
-         trafficLightEastWest[1] = yellow;
-         trafficLightEastWest[2] = red;
+    char trafficLight1EastWest[3];
+         trafficLight1EastWest[0] = green;
+         trafficLight1EastWest[1] = yellow;
+         trafficLight1EastWest[2] = red;
 
-    char trafficLightNorthSouth[3];
-         trafficLightNorthSouth[0] = green;
-         trafficLightNorthSouth[1] = yellow; 
-         trafficLightNorthSouth[1] = red; 
+    char trafficLight1NorthSouth[3];
+         trafficLight1NorthSouth[0] = green;
+         trafficLight1NorthSouth[1] = yellow; 
+         trafficLight1NorthSouth[1] = red; 
+/* Ville dette gøre sådan er der er to trafiklys?
+    char trafficLight2EastWest[3];
+         trafficLight2EastWest[0] = green;
+         trafficLight2EastWest[1] = yellow;
+         trafficLight2EastWest[2] = red;
 
-    if ( trafficLightEastWest == 0){    /* if EastWest is green then NorthSouth is red*/
-        trafficLightNorthSouth = 2;
+    char trafficLight2NorthSouth[3];
+         trafficLight2NorthSouth[0] = green;
+         trafficLight2NorthSouth[1] = yellow;
+         trafficLight2NorthSouth[2] = red;     
+*/
+    if ( trafficLight1EastWest == 0){    /* if EastWest is green then NorthSouth is red*/
+        trafficLight1NorthSouth = 2;
     }
         else{
-        trafficLightNorthSouth = 0;         /* if EastWest is anything but green (aka red) */
+        trafficLight1NorthSouth = 0;         /* if EastWest is anything but green (aka red) */
         }                                   /* then EastWest is green */
 
+//  if ( trafficLight2EastWest == 0){    /* if EastWest is green then NorthSouth is red*/
+//      trafficLight2NorthSouth = 2;
+//  }
+//      else{
+//      trafficLight2NorthSouth = 0;         /* if EastWest is anything but green (aka red) */
+//      }                                   /* then EastWest is green */
+
 /*  When a traffic light gives a green light to one directon, the other direction should start counting
-    up to when it gets to have the green light.                                                          */
+    up to when it gets to have the green light, every time a car passes the stop line at the traffic light
+    the green light should be extended, until a certain amount (such has 60 seconds)    */
 void Count_To_Green(/* Placeholder */)
 
 trafficLightEastWest = 0;   /* The traffic light EastWest starts as green */
