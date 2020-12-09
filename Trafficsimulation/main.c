@@ -38,9 +38,9 @@ int Run_Car(Cars *car, Car_Route *cr, int *all_times);
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route *cr);
 int Car_Turning(Cars *car, Car_Route *cr, int *all_times);
-void delay(int number_of_milli_seconds);
-void Return_time(int start_time, int *all_times, int *car_count);
-double Average_time(int *all_times, int *car_count);
+void Delay(int number_of_milli_seconds);
+void Return_Time(int start_time, int *all_times, int *car_count);
+double Average_Time(int *all_times, int *car_count);
 int Car_Driving_Time(int start_time);
 
 int global_time = 0;
@@ -64,8 +64,8 @@ int main() {
         global_time++;
     }
 
-    Return_time(car[1].start_time, all_times, &car_count);
-
+    Return_Time(car[1].start_time, all_times, &car_count);
+    printf("\nAverage time: %lf", Average_Time(all_times, &car_count));
     return EXIT_SUCCESS;
 }
 
@@ -146,7 +146,7 @@ int Car_Turning(Cars *car, Car_Route *cr, int *all_times) {
     return 0;
 }
 
-void delay(int number_of_milli_seconds) { 
+void Delay(int number_of_milli_seconds) { 
     /* Storing start global_time */
     clock_t start = clock(); 
   
@@ -154,13 +154,13 @@ void delay(int number_of_milli_seconds) {
     while (clock() < start + number_of_milli_seconds); 
 } 
 
-void Return_time(int start_time, int *all_times, int *car_count) {
+void Return_Time(int start_time, int *all_times, int *car_count) {
     int i = *car_count;
     all_times[i] = Car_Driving_Time(start_time);
     *car_count += 1;
 }
 
-double Average_time(int *all_times, int *car_count){
+double Average_Time(int *all_times, int *car_count){
     int combined_times = 0;
     double average_time;
     int car_count_toint = *car_count;
