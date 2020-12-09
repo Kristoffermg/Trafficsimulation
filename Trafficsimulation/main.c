@@ -47,23 +47,27 @@ int Int_Convert(char *temp_intersections);
 /* Der skal tilføjes at hvis lyset vandret er grønt, skal lodret være rødt vice versa*/
     /* Done, tror jeg.*/
 /* Mekanismen som den tæller biler op med skal anvendes, ved at aflæse arrayet som er inden lyskrydset*/
+/* pga hvordan trafiklys virker irl bør der helst kun kunne indlæses maks 3-4 biler i køen foran lyskrydset */
 
 /* Der skal være 2 trafiklys, fremfor ét*/
 
 /* Sammenordningen som opprioriterer 2 grønne lys i streg skal også implementeres*/
 
-void Red_Or_Green(char trafficLightNorthSouth, char trafficLightEastWest);
-    
-    char trafficLightEastWest[2];
+void Red_Or_Green(char trafficLightNorthSouth, char trafficLightEastWest, char green, char yellow, char red);
+    /* Der skal være en kort periode hvor begge lys er røde, og gule lys skal tilføjes på et tidspunkt.*/
+    const double green = 0, yellow = 1, red = 2;
+    char trafficLightEastWest[3];
          trafficLightEastWest[0] = green;
-         trafficLightEastWest[1] = red;
+         trafficLightEastWest[1] = yellow;
+         trafficLightEastWest[2] = red;
 
-    char trafficLightNorthSouth[2];
+    char trafficLightNorthSouth[3];
          trafficLightNorthSouth[0] = green;
+         trafficLightNorthSouth[1] = yellow; 
          trafficLightNorthSouth[1] = red; 
 
     if ( trafficLightEastWest == 0){    /* if EastWest is green then NorthSouth is red*/
-        trafficLightNorthSouth = 1;
+        trafficLightNorthSouth = 2;
     }
         else{
         trafficLightNorthSouth = 0;         /* if EastWest is anything but green (aka red) */
