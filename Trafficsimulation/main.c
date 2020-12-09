@@ -12,7 +12,7 @@
 
 typedef struct Cars {
     double current_speed;
-    double start_time;
+    int start_time;
     int route;
     float current_position;
     int driving_direction; /* uses enum directions values */
@@ -32,64 +32,61 @@ typedef struct Car_Route {
 
 enum direction { North, South, East, West, OutOfSystem };
 
-Cars Create_Car(Cars *car, Car_Route *cr, clock_t start);
-double Get_Current_Time(clock_t start);
-int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times);
+Cars Create_Car(Cars *car, Car_Route *cr);
+int Run_Car(Cars *car, Car_Route *cr, int *all_times);
 /*int driving_direction(Cars car, Car_Route cr, int n);*/
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route *cr);
-int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times);
+int Car_Turning(Cars *car, Car_Route *cr, int *all_times);
 void delay(int number_of_milli_seconds);
-void Return_Time(int car_time, double *all_times, int *car_count);
-double Average_Time(int *all_times,int *car_count);
+void Return_time(int start_time, int *all_times, int *car_count);
+double Average_time(int *all_times, int *car_count);
+int Car_Driving_Time(int start_time);
+
+int global_time = 0;
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
     Cars car[MAX_CARS];
-    double all_times[MAX_TIME_VALUES];
+    int all_times[MAX_TIME_VALUES];
     int i;
     int car_count = 0;
 
-    clock_t start = clock(); /* Starts time measurement */
+    clock_t start = clock(); /* Starts global_time measurement */
 
     Get_Route(cr);
     for(i = 0; i < MAX_CARS; i++){
-        car[i] = Create_Car(car, cr, start);
+        car[i] = Create_Car(car, cr);
     }
 
     printf("Car init: ---------\n");
-    while (Run_Car(&car[1], Get_Current_Time(car[1].start_time), cr, all_times) != 1) {
-        
+    while (Run_Car(&car[1], cr, all_times) != 1) {
+        global_time++;
     }
 
-    Return_Time(Get_Current_Time(car[1].start_time), all_times, &car_count);
+    Return_time(car[1].start_time, all_times, &car_count);
 
     return EXIT_SUCCESS;
 }
 
-Cars Create_Car(Cars *car, Car_Route *cr, clock_t start) {
-    car -> current_position = cr  ->  start_position;
-    car -> start_time = Get_Current_Time(start);
+Cars Create_Car(Cars *car, Car_Route *cr) {
+    car -> current_position = cr -> start_position;
+    car -> start_time = global_time;
     car -> route = 1;
     car -> driving_direction = 2;
     return *car;
 }
 
-double Get_Current_Time(clock_t start) {
-    clock_t current = clock();
-    return (double)(current - start);
-}
+double prev_time = 0;
 
-double prev_time = 0; // alternativ skal findes
-
-int Run_Car(Cars *car, double time, Car_Route *cr, double *all_times) {
+int Run_Car(Cars *car, Car_Route *cr, int *all_times) {
     printf("Driving direction %d ", car -> driving_direction);
 
     car -> current_speed = MAX_SPEED;
-    car -> current_position += car -> current_speed * (time - prev_time); /* distance = speed * time */
-    printf("Position: %lf time: %lf\n", car -> current_position, time);
-    prev_time = time;
-    return Car_Turning(car, time, cr,all_times);
+    car -> current_position += car -> current_speed * (global_time - prev_time); /* distance = speed * global_time */
+    printf("Position: %lf time: %d\n", car -> current_position, global_time);
+    prev_time = global_time;
+    return Car_Turning(car, cr, all_times);
 }
 
 void Get_Route(Car_Route *cr) {
@@ -131,40 +128,40 @@ void Print_Route_Summary(Car_Route *cr) {
     }
 }
 
-int Car_Turning(Cars *car, double time, Car_Route *cr, double *all_times) {
+int Car_Turning(Cars *car, Car_Route *cr, int *all_times) {
     if(car -> current_position >= 100 && car -> current_position <= 125) {
         car -> driving_direction = cr[0].intersections[0];
     }
     else if(car -> current_position >= 200 && car -> current_position <= 225) {
         car -> driving_direction = cr[0].intersections[1];
             if(car -> driving_direction != 2) {
-                printf("Car turns at time: %lf", time - car -> start_time);
+                printf("Car turns at time: %d", global_time - car -> start_time);
                 return 1;
             }
     }
     else if (car -> current_position >= 800) {
-        printf("Car finished at time: %lf", time - car -> start_time);
+        printf("Car finished at time: %d", global_time - car -> start_time);
         return 1;
     }
     return 0;
 }
 
 void delay(int number_of_milli_seconds) { 
-    /* Storing start time */
+    /* Storing start global_time */
     clock_t start = clock(); 
   
-    /* Looping till required time is not achieved */
+    /* Looping till required global_time is not achieved */
     while (clock() < start + number_of_milli_seconds); 
 } 
 
-void Return_Time(int car_time, double *all_times, int *car_count) {
+void Return_time(int start_time, int *all_times, int *car_count) {
     int i = *car_count;
-    all_times[i] = car_time;
-    *car_count +=1;
+    all_times[i] = Car_Driving_Time(start_time);
+    *car_count += 1;
 }
 
-double Average_Time(int *all_times,int *car_count){
-    double combined_times = 0;
+double Average_time(int *all_times, int *car_count){
+    int combined_times = 0;
     double average_time;
     int car_count_toint = *car_count;
     int i;
@@ -174,4 +171,8 @@ double Average_Time(int *all_times,int *car_count){
     }
     average_time = combined_times / car_count_toint;
     return average_time;
+}
+
+int Car_Driving_Time(int start_time) {
+    return global_time - start_time;
 }
