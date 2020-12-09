@@ -81,6 +81,8 @@ trafficLightEastWest = 0;   /* The traffic light EastWest starts as green */
                             /* Because one has to start green */
 
 void Green_Wave()
+/*
+int main();{
 
-int main()
-
+}
+*/
