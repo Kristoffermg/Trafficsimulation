@@ -12,7 +12,6 @@
 
 typedef struct Cars {
     double current_speed;
-    int start_time;
     int route;
     float current_position;
     int driving_direction; /* uses enum directions values */
@@ -139,7 +138,7 @@ int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
    if(car.current_position >= 100 && car.current_position <= 125) {
         car.driving_direction = cr.intersections[0];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time - car.start_time);
+                printf("Car turns at time: %d \n", time);
                 *all_times += time;
                 printf("Done with route, out of system.\n");
                 printf("Route end: --------- \n\n");
@@ -149,7 +148,7 @@ int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
     else if(car.current_position >= 200 && car.current_position <= 225) {    
         car.driving_direction = cr.intersections[1];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time - car.start_time);
+                printf("Car turns at time: %d \n", time);
                 *all_times += time;
                 printf("Done with route, out of system.\n");
                 printf("Route end: --------- \n\n");
@@ -159,7 +158,7 @@ int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
     else if(car.current_position >= 300 && car.current_position <= 325) {
         car.driving_direction = cr.intersections[2];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time - car.start_time);
+                printf("Car turns at time: %d \n", time);
                 *all_times += time;
                 printf("Done with route, out of system.\n");
                 printf("Route end: --------- \n\n");
@@ -169,7 +168,7 @@ int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
     else if(car.current_position >= 400 && car.current_position <= 425) {
         car.driving_direction = cr.intersections[3];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time - car.start_time);
+                printf("Car turns at time: %d \n", time);
                 *all_times += time;
                 printf("Done with route, out of system.\n");
                 printf("Route end: --------- \n\n");
@@ -179,7 +178,7 @@ int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
     else if(car.current_position >= 500 && car.current_position <= 525) {
         car.driving_direction = cr.intersections[4];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time - car.start_time);
+                printf("Car turns at time: %d \n", time);
                 *all_times += time;
                 printf("Done with route, out of system.\n");
                 printf("Route end: --------- \n\n");
@@ -187,7 +186,7 @@ int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
             }
     }
     else if (car.current_position >= 800) {
-        printf("Car finished at time: %d \n", time - car.start_time);
+        printf("Car finished at time: %d \n", time);
         *all_times += time;
         printf("Done with route, out of system.\n");
         printf("Route end: --------- \n\n");
