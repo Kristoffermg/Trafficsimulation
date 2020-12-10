@@ -46,7 +46,7 @@ void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route cr);
 int Car_Turning(Cars car, int time, Car_Route cr);
-double Average_Time(int all_times, int car_count);
+int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
 void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number);
@@ -67,7 +67,7 @@ int main() {
     for (i = 0; i<= 10; i++)
     {
         Run_Traffic_Lights(time, Traffic_Lights);
-        printf("Lys 1 farve : %d Lys 2 farve: %d\n",Traffic_Lights[0].color, Traffic_Lights[1].color);
+        printf("Light 1 color : %d Light 2 color: %d\n",Traffic_Lights[0].color, Traffic_Lights[1].color);
         time = time + 1;
     }
     /*slutning af test */
@@ -81,7 +81,7 @@ int main() {
         time++;
         if(time % SECONDS_PER_HOUR == 0) { 
             car_count_in_an_hour = all_times;
-            printf("[%dh] average: %lf \n", ++current_hour, Average_Time(car_count_in_an_hour, i)); 
+            printf("[%dh] average: %ds\n", ++current_hour, Average_Time(car_count_in_an_hour, i)); 
             car_count_in_an_hour = 0;
         }
         for (i = 0; i < MAX_CARS; i++) {
@@ -103,8 +103,8 @@ int main() {
         }
     }
     car_count = i;
-    printf("Total time for all cars: %d \n", all_times);
-    printf("Average time of all cars: %lf \n", Average_Time(all_times, car_count));
+    printf("Total time for all cars: %ds\n", all_times);
+    printf("Average time of all cars: %ds\n", Average_Time(all_times, car_count));
 
     return EXIT_SUCCESS;
 }
@@ -197,7 +197,7 @@ int Car_Turning(Cars car, int time, Car_Route cr) {
     return 0;
 }
 
-double Average_Time(int all_times, int car_count) {
+int Average_Time(int all_times, int car_count) {
     return all_times / car_count;
 }
 
