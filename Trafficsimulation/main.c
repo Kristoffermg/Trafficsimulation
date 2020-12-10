@@ -29,8 +29,14 @@ typedef struct Car_Route {
     int intersections[MAX_INTERSECTIONS];
 } Car_Route;
 
+typedef struct Traffic_Light {
+    int color; /* 0 = north and south is green, 1 = east and west is green */
+    int time_to_switch;
+    int next_color_switch;
+} Traffic_Light;
 
 enum direction { North, South, East, West, OutOfSystem };
+enum Traffic_Light_Colors { Green, Yellow, Red};
 
 Cars Create_Car(Cars *car, Car_Route *cr);
 void Run_Car(Cars car, Car_Route cr, int *all_times);
@@ -39,14 +45,27 @@ void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route cr);
 int Car_Turning(Cars car, int time, Car_Route cr, int *all_times);
 double Average_Time(int all_times, int car_count);
+void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
+void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
+void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number);
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
     Cars car[MAX_CARS];
+    Traffic_Light Traffic_Lights[1];
     int all_times;
     int i;
     int car_count = 0;
-
+    Init_Traffic_Lights(Traffic_Lights);
+    /*test af run traffic light */
+    int time = 0;
+    for (i = 0; i<= 10; i++)
+    {
+        Run_Traffic_Lights(time, Traffic_Lights);
+        printf("Lys 1 farve : %d Lys 2 farve: %d\n",Traffic_Lights[0].color, Traffic_Lights[1].color);
+        time = time + 1;
+    }
+    /*slutning af test */
     Get_Route(cr);
     for(i = 0; i < MAX_CARS; i++){
         car[i] = Create_Car(car, cr);
@@ -180,4 +199,31 @@ int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
 
 double Average_Time(int all_times, int car_count) {
     return all_times / car_count;
+}
+void Init_Traffic_Lights(Traffic_Light *Traffic_Lights){
+    Traffic_Lights[0].color = Green;
+    Traffic_Lights[0].time_to_switch = 5;
+    Traffic_Lights[0].next_color_switch = 5;
+
+    Traffic_Lights[1].color = Red;
+    Traffic_Lights[1].time_to_switch = 5;
+    Traffic_Lights[1].next_color_switch = 5;
+
+}
+
+void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights){
+    int i = 0; 
+    for (i = 0; i<2; i++) {
+        if (time == Traffic_Lights[i].next_color_switch) {
+            Traffic_Light_Swap_Color(Traffic_Lights, i);
+            Traffic_Lights[i].next_color_switch = time + Traffic_Lights[i].time_to_switch;
+        }
+    }
+}
+
+void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number){
+    if (Traffic_Lights[traffic_light_number].color == Green)
+        Traffic_Lights[traffic_light_number].color = Red;
+    else if (Traffic_Lights[traffic_light_number].color == Red)
+        Traffic_Lights[traffic_light_number].color = Green;
 }
