@@ -5,16 +5,19 @@
 #define MAX_STRING_LENGTH 1000
 #define MAX_SPEED 14 /* 50km/t in m/s */
 #define CAR_LENGTH 4 /* meters */
-#define MAX_CARS 100
+#define MAX_CARS 4
 #define MAX_ROUTES 4
 #define MAX_INTERSECTIONS 5
 #define MAX_TIME_VALUES 5000
 
 typedef struct Cars {
+    int carID;
     double current_speed;
+    int start_time;
     int route;
-    float current_position;
+    double current_position;
     int driving_direction; /* uses enum directions values */
+    int active; /* 0 if car haven't entered system, 1 if it's currently in the system, 2 if it finished */
 } Cars;
 
 struct Intersection {
@@ -37,12 +40,11 @@ typedef struct Traffic_Light {
 enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
 
-Cars Create_Car(Cars *car, Car_Route *cr);
-void Run_Car(Cars car, Car_Route cr, int *all_times);
-/*int driving_direction(Cars car, Car_Route cr, int n);*/
+Cars Create_Car(Cars *car, Car_Route *cr, int *ID);
+void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 void Print_Route_Summary(Car_Route cr);
-int Car_Turning(Cars car, int time, Car_Route cr, int *all_times);
+int Car_Turning(Cars car, int time, Car_Route cr);
 double Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
@@ -50,14 +52,14 @@ void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_n
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[MAX_CARS];
+    Cars car[MAX_CARS], *p = car;
     Traffic_Light Traffic_Lights[1];
-    int all_times;
-    int i;
+    int all_times = 0;
+    int i, j, time = 0;
     int car_count = 0;
+
     Init_Traffic_Lights(Traffic_Lights);
     /*test af run traffic light */
-    int time = 0;
     for (i = 0; i<= 10; i++)
     {
         Run_Traffic_Lights(time, Traffic_Lights);
@@ -65,41 +67,53 @@ int main() {
         time = time + 1;
     }
     /*slutning af test */
+    
     Get_Route(cr);
     for(i = 0; i < MAX_CARS; i++){
-        car[i] = Create_Car(car, cr);
+        car[i] = Create_Car(car, cr, &i);
     }
 
-    for(i = 0; i < MAX_ROUTES; i++) {
-       printf("Car init: ---------\n"); 
-       Print_Route_Summary(cr[i]);
-       Run_Car(car[i], cr[i], &all_times);
+    while(time < 100){        
+        time++;
+        for (i = 0; i < MAX_CARS; i++) {
+            if(car[i].active == 0 && car[i].current_position == cr[i].start_position) {
+                car[i].active = 1;
+            }
+            if(car[i].active == 1 && Car_Turning(car[i], time, cr[i]) != 1){
+                if(car[i].current_speed < MAX_SPEED) 
+                    car[i].current_speed = MAX_SPEED;
+                car[i].current_position += car[i].current_speed;
+                //Run_Car(p, cr, &all_times, i);
+                
+            }
+            else if(car[i].active == 1 && Car_Turning(car[i], time, cr[i]) == 1){
+                car[i].active = 2;
+                all_times += time;
+            }
+            printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID);
+        }
     }
     car_count = i;
     printf("Total time for all cars: %d \n", all_times);
-    printf("Average time of all cars: %lf", Average_Time(all_times, car_count));
+    printf("Average time of all cars: %lf \n", Average_Time(all_times, car_count));
 
     return EXIT_SUCCESS;
 }
 
-Cars Create_Car(Cars *car, Car_Route *cr) {
+Cars Create_Car(Cars *car, Car_Route *cr, int *ID) {
+    car -> carID = *ID;
     car -> current_position = cr -> start_position;
-    car -> current_position = 0;
     car -> route = 1;
     car -> driving_direction = 2;
+    car -> active = 0;
+    car -> current_speed = 0;
     return *car;
 }
 
-void Run_Car(Cars car, Car_Route cr, int *all_times) {
-    int time = 0;
-    do{
-        //printf("Driving direction %d ", car -> driving_direction);
-        if(car.current_speed < MAX_SPEED) 
-            car.current_speed = MAX_SPEED;
-        car.current_position += car.current_speed;
-        //printf("Position: %lf time: %lf\n", car -> current_position, time);
-        time++;
-    }while(Car_Turning(car, time, cr, all_times) != 1);
+void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i) {
+    if(car -> current_speed < MAX_SPEED)    
+        car -> current_speed = MAX_SPEED;
+        car -> current_position += car -> current_speed;
 }
 
 void Get_Route(Car_Route *cr) {
@@ -134,71 +148,50 @@ void Print_Route_Summary(Car_Route cr) {
     }
 }
 
-int Car_Turning(Cars car, int time, Car_Route cr, int *all_times) {
-   if(car.current_position >= 100 && car.current_position <= 125) {
+int Car_Turning(Cars car, int time, Car_Route cr) {
+    if(car.current_position >= 100 && car.current_position <= 125) {
         car.driving_direction = cr.intersections[0];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time);
-                *all_times += time;
-                printf("Done with route, out of system.\n");
-                printf("Route end: --------- \n\n");
                 return 1;
             }
     }
     else if(car.current_position >= 200 && car.current_position <= 225) {    
         car.driving_direction = cr.intersections[1];
-            if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time);
-                *all_times += time;
-                printf("Done with route, out of system.\n");
-                printf("Route end: --------- \n\n");
+            if(car.driving_direction != 2 && car.current_position != 3) {
                 return 1;
             }
     }
     else if(car.current_position >= 300 && car.current_position <= 325) {
-        car.driving_direction = cr.intersections[2];
-            if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time);
-                *all_times += time;
-                printf("Done with route, out of system.\n");
-                printf("Route end: --------- \n\n");
+        car.current_position = cr.intersections[2];
+            if(car.current_position != 2 && car.current_position != 3) {
                 return 1;
             }
     }
     else if(car.current_position >= 400 && car.current_position <= 425) {
-        car.driving_direction = cr.intersections[3];
+        car.current_position = cr.intersections[3];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time);
-                *all_times += time;
-                printf("Done with route, out of system.\n");
-                printf("Route end: --------- \n\n");
                 return 1;
             }
     }
     else if(car.current_position >= 500 && car.current_position <= 525) {
         car.driving_direction = cr.intersections[4];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
-                printf("Car turns at time: %d \n", time);
-                *all_times += time;
-                printf("Done with route, out of system.\n");
-                printf("Route end: --------- \n\n");
                 return 1;
             }
     }
     else if (car.current_position >= 800) {
-        printf("Car finished at time: %d \n", time);
-        *all_times += time;
-        printf("Done with route, out of system.\n");
-        printf("Route end: --------- \n\n");
+        //printf("Car finished at time: %d \n", time);
+        //printf("Done with route, out of system.\n");
+        //printf("Route end: --------- \n\n");
         return 1;
     }
-    
     return 0;
 }
 
 double Average_Time(int all_times, int car_count) {
     return all_times / car_count;
 }
+
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights){
     Traffic_Lights[0].color = Green;
     Traffic_Lights[0].time_to_switch = 5;
