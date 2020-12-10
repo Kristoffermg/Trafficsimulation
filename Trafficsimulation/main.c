@@ -99,7 +99,7 @@ void Count_To_Green(/* Placeholder */)
 trafficLightEastWest = 0;   /* The traffic light EastWest starts as green */
                             /* Because one has to start green */
 
-void Green_Wave()
+void Green_Wave(/*Placeholder*/)
 /*
 int main();{
 
