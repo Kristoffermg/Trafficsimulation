@@ -9,6 +9,7 @@
 #define MAX_ROUTES 4
 #define MAX_INTERSECTIONS 5
 #define MAX_TIME_VALUES 5000
+#define SECONDS_PER_HOUR 3600
 
 typedef struct Cars {
     int carID;
@@ -54,9 +55,12 @@ int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
     Cars car[MAX_CARS], *p = car;
     Traffic_Light Traffic_Lights[1];
-    int all_times = 0;
-    int i, j, time = 0;
-    int car_count = 0;
+    int all_times = 0, 
+        i, j, 
+        time = 0, 
+        current_hour = 0,
+        car_count = 0,
+        car_count_in_an_hour = 0;
 
     Init_Traffic_Lights(Traffic_Lights);
     /*test af run traffic light */
@@ -73,8 +77,13 @@ int main() {
         car[i] = Create_Car(car, cr, &i);
     }
 
-    while(time < 100){        
+    while(time <= SECONDS_PER_HOUR * 24){        
         time++;
+        if(time % SECONDS_PER_HOUR == 0) { 
+            car_count_in_an_hour = all_times;
+            printf("[%dh] average: %lf \n", ++current_hour, Average_Time(car_count_in_an_hour, i)); 
+            car_count_in_an_hour = 0;
+        }
         for (i = 0; i < MAX_CARS; i++) {
             if(car[i].active == 0 && car[i].current_position == cr[i].start_position) {
                 car[i].active = 1;
@@ -90,7 +99,7 @@ int main() {
                 car[i].active = 2;
                 all_times += time;
             }
-            printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID);
+            //printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID);
         }
     }
     car_count = i;
