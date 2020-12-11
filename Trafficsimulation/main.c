@@ -120,7 +120,6 @@ int main() {
 }
 
 Cars Create_Car(Cars *car, Car_Route *cr, int i) {
-    
     car -> carID = i;
     car -> current_position = cr->start_position;
     car -> route = cr->route_number;
