@@ -29,6 +29,7 @@ struct Intersection {
 typedef struct Car_Route {
     int route_number;
     int start_position;
+    int driving_direction;
     int intersections[MAX_INTERSECTIONS];
 } Car_Route;
 
@@ -41,7 +42,7 @@ typedef struct Traffic_Light {
 enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
 
-Cars Create_Car(Cars *car, Car_Route *cr, int *ID);
+Cars Create_Car(Cars *car, Car_Route *cr, int i);
 void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 int Random_Route_Num();
@@ -54,32 +55,25 @@ void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_n
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[MAX_CARS], *p = car;
+    Cars car[MAX_CARS];
     Traffic_Light Traffic_Lights[1];
     int all_times = 0, 
-        i, j, 
+        i, 
         current_time = 0, 
         current_hour = 0,
         car_count = 0,
-        car_count_in_an_hour = 0;
+        car_count_in_an_hour = 0,
+        route_num = 0;
 
     srand(time(NULL));
 
     Init_Traffic_Lights(Traffic_Lights);
-    /*test af run traffic light */
-    for (i = 0; i<= 10; i++)
-    {
-        Run_Traffic_Lights(current_time, Traffic_Lights);
-        printf("Light 1 color : %d Light 2 color: %d\n",Traffic_Lights[0].color, Traffic_Lights[1].color);
-        current_time = current_time + 1;
-    }
-    /*slutning af test */
-    
-    for(i = 0; i < MAX_CARS; i++){
-        Get_Route(cr);
-        car[i] = Create_Car(car, cr, &i);
-    }
 
+    Get_Route(cr);
+    for(i = 0; i < MAX_CARS; i++) {
+        route_num = Random_Route_Num();
+        car[i] = Create_Car(car, &cr[route_num], i);
+    }
     while(current_time <= SECONDS_PER_HOUR * 24){        
         current_time++;
         if(current_time % SECONDS_PER_HOUR == 0) { 
@@ -91,15 +85,16 @@ int main() {
             if(car[i].active == 0 && car[i].current_position == cr[i].start_position) {
                 car[i].active = 1;
             }
-            if(car[i].active == 1 && Car_Turning(car[i], current_time, cr[i]) != 1){
+            if(car[i].active == 1 && Car_Turning(car[i], current_time, cr[car[i].route]) != 1){
                 if(car[i].current_speed < MAX_SPEED) 
                     car[i].current_speed = MAX_SPEED;
                 car[i].current_position += car[i].current_speed;
                 //Run_Car(p, cr, &all_times, i);
                 
             }
-            else if(car[i].active == 1 && Car_Turning(car[i], current_time, cr[i]) == 1){
+            else if(car[i].active == 1 && Car_Turning(car[i], current_time, cr[car[i].route]) == 1){
                 car[i].active = 2;
+                printf("route: %d current_time: %d\n", car[i].route, current_time);
                 all_times += current_time;
             }
             //printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID);
@@ -112,20 +107,20 @@ int main() {
     return EXIT_SUCCESS;
 }
 
-Cars Create_Car(Cars *car, Car_Route *cr, int *ID) {
-    car -> carID = *ID;
-    car -> current_position = cr -> start_position;
-    car -> route = cr -> route_number;
-    car -> driving_direction = 2;
-    car -> active = 0;
-    car -> current_speed = 0;
+Cars Create_Car(Cars *car, Car_Route *cr, int i) {
+    car->carID = i;
+    car->current_position = cr->start_position;
+    car->route = cr->route_number;
+    car->driving_direction = cr->driving_direction;
+    car->active = 0;
+    car->current_speed = 0;
     return *car;
 }
 
 void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i) {
     if(car -> current_speed < MAX_SPEED)    
         car -> current_speed = MAX_SPEED;
-        car -> current_position += car -> current_speed;
+    car -> current_position += car -> current_speed;
 }
 
 void Get_Route(Car_Route *cr) {
@@ -134,9 +129,9 @@ void Get_Route(Car_Route *cr) {
     FILE *routes_file_pointer;
     routes_file_pointer = fopen("Routes.txt", "r");
 
-    int route_num = Random_Route_Num();
-    for(i = 0; i <= MAX_ROUTES; i++) if(i == route_num) {
-        fscanf(routes_file_pointer, " %d %d %d %d %d %d %d", &cr[i].route_number, &cr[i].start_position, &cr[i].intersections[0],
+    for(i = 0; i <= MAX_ROUTES; i++) {
+        fscanf(routes_file_pointer, " %d %d %d %d %d %d %d %d", &cr[i].route_number, &cr[i].start_position, &cr[i].driving_direction,
+                                                             &cr[i].intersections[0],
                                                              &cr[i].intersections[1], &cr[i].intersections[2], &cr[i].intersections[3],
                                                              &cr[i].intersections[4]);
     }
@@ -144,7 +139,7 @@ void Get_Route(Car_Route *cr) {
 }
 
 int Random_Route_Num() {
-    return rand() % MAX_ROUTES + 1; 
+    return rand() % MAX_ROUTES; 
 }
 
 void Print_Route_Summary(Car_Route cr) {
