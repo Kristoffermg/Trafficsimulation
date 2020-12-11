@@ -50,6 +50,8 @@ int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
 void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number);
+int Is_Light_Green(Traffic_Light *Traffic_Lights, int light_number);
+int In_Traffic_Light(int driving_direction, double position);
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
@@ -67,6 +69,10 @@ int main() {
     for (i = 0; i<= 10; i++)
     {
         Run_Traffic_Lights(time, Traffic_Lights);
+        if (Is_Light_Green(Traffic_Lights, 1) == 1)
+            printf("grønt");
+        else if(Is_Light_Green(Traffic_Lights, 1) == 0)
+            printf("Rødt");
         printf("Light 1 color : %d Light 2 color: %d\n",Traffic_Lights[0].color, Traffic_Lights[1].color);
         time = time + 1;
     }
@@ -79,6 +85,7 @@ int main() {
 
     while(time <= SECONDS_PER_HOUR * 24){        
         time++;
+        Run_Traffic_Lights(time,Traffic_Lights);
         if(time % SECONDS_PER_HOUR == 0) { 
             car_count_in_an_hour = all_times;
             printf("[%dh] average: %ds\n", ++current_hour, Average_Time(car_count_in_an_hour, i)); 
@@ -89,11 +96,42 @@ int main() {
                 car[i].active = 1;
             }
             if(car[i].active == 1 && Car_Turning(car[i], time, cr[i]) != 1){
+                /*Switchen fortæller om hvilket trafiklys bilen e i */
+                switch (In_Traffic_Light(car[i].driving_direction,car[i].current_position))
+                {
+                case 0:
+                printf("ikke i kryds\n");
+                printf("position før %f \t tid: %d\t",car->current_position,time);
                 if(car[i].current_speed < MAX_SPEED) 
                     car[i].current_speed = MAX_SPEED;
                 car[i].current_position += car[i].current_speed;
+                    break;
+                case 1:
+                if (Is_Light_Green(Traffic_Lights,0) == 1) {
+                printf("i kryds 1");
+                    if(car[i].current_speed < MAX_SPEED) 
+                        car[i].current_speed = MAX_SPEED;
+                    car[i].current_position += car[i].current_speed;
+                }
+                    else {
+                        printf("holder\n");
+                        car[i].current_speed = 0;
+                        car[i].current_position = car[i].current_position;
+                    }
+                    break;
+                case 2:
+                if (Is_Light_Green(Traffic_Lights,2) == 1) {
+                    if(car[i].current_speed < MAX_SPEED) 
+                        car[i].current_speed = MAX_SPEED;
+                    car[i].current_position += car[i].current_speed;
+                }
+                    else {
+                        car[i].current_speed = 0;
+                        car[i].current_position = car[i].current_position;
+                    } 
+                    break;
+                }
                 //Run_Car(p, cr, &all_times, i);
-                
             }
             else if(car[i].active == 1 && Car_Turning(car[i], time, cr[i]) == 1){
                 car[i].active = 2;
@@ -202,9 +240,9 @@ int Average_Time(int all_times, int car_count) {
 }
 
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights){
-    Traffic_Lights[0].color = Green;
-    Traffic_Lights[0].time_to_switch = 5;
-    Traffic_Lights[0].next_color_switch = 5;
+    Traffic_Lights[0].color = Red;
+    Traffic_Lights[0].time_to_switch = 50;
+    Traffic_Lights[0].next_color_switch = 30;
 
     Traffic_Lights[1].color = Red;
     Traffic_Lights[1].time_to_switch = 5;
@@ -227,4 +265,24 @@ void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_n
         Traffic_Lights[traffic_light_number].color = Red;
     else if (Traffic_Lights[traffic_light_number].color == Red)
         Traffic_Lights[traffic_light_number].color = Green;
+}
+
+int Is_Light_Green(Traffic_Light *Traffic_Lights, int light_number) {
+    if (Traffic_Lights[light_number].color == Green)
+        return 1;
+
+    else
+        return 0;
+}
+/*return 0 = ikke i kryds, return 1 = kryds 1, return 2 = kryds 2 */
+int In_Traffic_Light(int driving_direction, double position) {
+    if (driving_direction == East && position < 100 && position > 100 - MAX_SPEED) {
+        return 1;
+    }
+    else if (driving_direction == East && position < 500 && position > 500 - MAX_SPEED) {
+        return 2;
+    }
+    else {
+        return 0;
+    }  
 }
