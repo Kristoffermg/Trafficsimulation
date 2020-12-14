@@ -19,6 +19,7 @@ typedef struct Cars {
     int current_position;
     int driving_direction; /* uses enum directions values */
     int active; /* 0 if car haven't entered system, 1 if it's currently in the system, 2 if it finished */
+    int car_time;
 } Cars;
 
 struct Intersection {
@@ -42,7 +43,7 @@ typedef struct Traffic_Light {
 enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
 
-Cars Create_Car(Cars *car, Car_Route *cr, int i);
+Cars Create_Car(Cars *car, Car_Route *cr, int i, int time);
 void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 int Random_Route_Num();
@@ -55,7 +56,7 @@ void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_n
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[MAX_CARS];
+    Cars car[5000];
     Traffic_Light Traffic_Lights[1];
     int all_times = 0, 
         i, 
@@ -64,6 +65,7 @@ int main() {
         car_count = 0,
         car_count_in_an_hour = 0,
         route_num = 0;
+    int active_count = 0;
 
     srand(time(NULL));
 
@@ -72,8 +74,9 @@ int main() {
     Get_Route(cr);
     for(i = 0; i < MAX_CARS; i++) {
         route_num = Random_Route_Num();
-        car[i] = Create_Car(car, &cr[route_num], i);
-        car[i].carID = i;
+        car[i] = Create_Car(car, &cr[route_num], i, 0);
+        car[i].carID = i + 1;
+        car_count = i;
     }
     
     while(current_time < SECONDS_PER_HOUR * 24) {        
@@ -83,7 +86,18 @@ int main() {
             printf("[%dh] average: %ds\n", ++current_hour, Average_Time(car_count_in_an_hour, i)); 
             car_count_in_an_hour = 0;
         }
-        for (i = 0; i < MAX_CARS; i++) {
+
+        if(rand() % 100 == 1) {
+        //printf("Car spawn\n");
+        route_num = Random_Route_Num();
+        car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
+        car[car_count].carID = car_count;
+        //printf("Car spawn id: %d\n", car[car_count].carID);
+        car_count = car_count + 1;
+        //printf("Total number of cars: %d\n", car_count);
+        }
+
+        for (i = 0; i < car_count; i++) {
             //if(car[i].carID == 12 && i == 0) { printf("Hit\n"); }
             //printf("\ncar %d, active: %d, pos: %d\n", car[6].carID, car[6].active, car[6].current_position);
             if(car[i].active == 0) {
@@ -98,24 +112,33 @@ int main() {
             else if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) == 1){
                 //printf("Car: %d, Route: %d\n", car[i].carID, car[i].route);
                 car[i].active = 2;
-                all_times += current_time;
+                car[i].car_time = current_time - car[i].start_time;
+                all_times += current_time - car[i].start_time;
+                active_count = active_count + 1;
+                //printf("Active count = %d, car %d\n", active_count, car[i].carID);
             }
-            //printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID);
+            //printf("Current pos: %d time: %d ID: %d \n", car[i].current_position, current_time, car[i].carID);
         }
     }
-    car_count = i;
+
+    /*
+    for(i = 0; i < car_count; i++) {
+        printf("CarID: %d, Car time: %d, Car active: %d\n", car[i].carID, car[i].car_time, car[i].active);
+    }*/
+    printf("Total number of cars: %d\n", car_count - 1);
     printf("Total time for all cars: %ds\n", all_times);
     printf("Average time of all cars: %ds\n", Average_Time(all_times, car_count));
 
     return EXIT_SUCCESS;
 }
 
-Cars Create_Car(Cars *car, Car_Route *cr, int i) {
+Cars Create_Car(Cars *car, Car_Route *cr, int i, int time) {
     car->current_position = cr->start_position;
     car->route = cr->route_number;
     car->driving_direction = cr->driving_direction;
     car->active = 0;
     car->current_speed = 0;
+    car->start_time = time;
     return *car;
 }
 
