@@ -109,12 +109,9 @@ int main() {
                 hour_time += current_time - car[i].start_time;
                 active_count = active_count + 1;
             }
-
             /* printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID); */
-
         }
     }
-
     /*
     for(i = 0; i < car_count; i++) {
         printf("CarID: %d, Car time: %d, Car active: %d\n", car[i].carID, car[i].car_time, car[i].active);
