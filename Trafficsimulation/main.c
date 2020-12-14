@@ -70,7 +70,6 @@ int main() {
         route_num = 0;
 
     srand(time(NULL));
-    double prev_speed = 0;
     Init_Traffic_Lights(Traffic_Lights);
 
     Get_Route(cr);
@@ -94,14 +93,14 @@ int main() {
             if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) != 1) {
                 car[i].current_speed += Collision_Check(car[i], car, i, 0);
                 car[i].current_position += car[i].current_speed;
-                //Run_Car((car + i), &all_times, i);
+                /* Run_Car((car + i), &all_times, i); */
             }
             else if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) == 1){
-                //printf("Car: %d, Route: %d\n", car[i].carID, car[i].route);
+                /* printf("Car: %d, Route: %d\n", car[i].carID, car[i].route); */
                 car[i].active = 2;
                 all_times += current_time;
             }
-            //printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID);
+            /* printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID); */
         }
     }
     car_count = i;
@@ -194,13 +193,12 @@ int Car_Turning(Cars car, Car_Route cr) {
             }
     }
     else if (car.current_position >= 800) {
-        //printf("Car finished at time: %d \n", time);
-        //printf("Done with route, out of system.\n");
-        //printf("Route end: --------- \n\n");
+        /* printf("Car finished at time: %d \n", time); */
+        /* printf("Done with route, out of system.\n"); */
+        /* printf("Route end: --------- \n\n"); */
         return 1;
     }
-    else
-        return 0;
+    return 0;
 }
 
 int Average_Time(int all_times, int car_count) {
@@ -244,6 +242,8 @@ int Collision_Check(Cars car, Cars *all_cars, int car_num, int i) {
         meters_until_collision, 
         number_of_active_cars;
 
+    number_of_active_cars = Number_Of_Active_Cars(all_cars);
+
     if(all_cars[i].active == 1 && i != car_num) 
         other_car_pos = all_cars[i].current_position;
     else if(i < number_of_active_cars)
@@ -251,11 +251,10 @@ int Collision_Check(Cars car, Cars *all_cars, int car_num, int i) {
     else return 0;
 
     collision_status = Calculate_Collision_Status(current_car_pos, other_car_pos);
-    number_of_active_cars = Number_Of_Active_Cars(all_cars);
 
     if(car.driving_direction == all_cars[i].driving_direction) {
         if(collision_status == CarsSamePosition) { /* Quick speed boost when cars start on top of each other at the same time */
-            //printf("SAME POSITION: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos);
+            /* printf("SAME POSITION: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
             if(car.current_speed <= 4)
                 return 5;
             else if(car.current_speed >= 5 && car.current_speed <= 9) 
@@ -265,18 +264,18 @@ int Collision_Check(Cars car, Cars *all_cars, int car_num, int i) {
             else return -2;
         }
         else if(collision_status == OtherCarCollides) { /* Drive faster */
-            //printf("FASTER: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos);
+            /* printf("FASTER: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
             if(car.current_speed + 2 <= MAX_SPEED)
                 return 2;
             else return -2;
         }
         else if(collision_status == CollisionIsClose) {
             meters_until_collision = other_car_pos - current_car_pos;
-            //printf("CLOSE: Current_pos: %d other_car: %d until_collision: %d\n", current_car_pos, other_car_pos, meters_until_collision);
+            /* printf("CLOSE: Current_pos: %d other_car: %d until_collision: %d\n", current_car_pos, other_car_pos, meters_until_collision); */
             return -Calculate_Speed_Decrease_To_Avoid_Collision(meters_until_collision, car.current_speed);
         }
         else if(collision_status == NoCollision) { /* Maintain same speed */
-            //printf("Maintain: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos);
+            /* printf("Maintain: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
             if(i < number_of_active_cars && car.current_speed > 0)
                 return Collision_Check(car, all_cars, car_num, i + 1);
         }
