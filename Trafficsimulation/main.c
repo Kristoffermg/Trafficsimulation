@@ -61,7 +61,7 @@ int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int 
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[5000];
+    Cars car[20000];
     Traffic_Light Traffic_Lights[1];
     int all_times = 0, 
         i, 
@@ -94,7 +94,7 @@ int main() {
             hour_time = 0;
         }
 
-        if(rand() % 1000 == 1) {
+        if(rand() % 17 == 1) {
         //printf("Car spawn\n");
         route_num = Random_Route_Num();
         car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
