@@ -43,7 +43,7 @@ typedef struct Traffic_Light {
 enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
 
-Cars Create_Car(Cars *car, Car_Route *cr, int i);
+Cars Create_Car(Cars *car, Car_Route *cr, int i, int time);
 void Run_Car(Cars *car, int *all_times, int i);
 
 void Get_Route(Car_Route *cr);
