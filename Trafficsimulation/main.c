@@ -61,7 +61,7 @@ int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int 
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[5000];
+    Cars car[20000];
     Traffic_Light Traffic_Lights[1];
     int all_times = 0, 
         i, 
@@ -69,7 +69,8 @@ int main() {
         current_hour = 0,
         car_count = 0,
         car_count_in_an_hour = 0,
-        route_num = 0;
+        route_num = 0,
+        hour_time = 0;
     int active_count = 0;
 
     srand(time(NULL));
@@ -81,23 +82,26 @@ int main() {
         car[i] = Create_Car(car, &cr[route_num], i, 0);
         car[i].carID = i + 1;
         car_count = i;
+        car_count_in_an_hour++;
     }
 
     while(current_time < SECONDS_PER_HOUR * 24) {      
         current_time++;
         if(current_time % SECONDS_PER_HOUR == 0) { 
-            car_count_in_an_hour = all_times;
-            printf("[%dh] average: %ds\n", ++current_hour, Average_Time(car_count_in_an_hour, i)); 
+            printf("[%dh] average: %ds\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour)); 
+            printf("Car count: %d, hour time %d\n", car_count_in_an_hour, hour_time);
             car_count_in_an_hour = 0;
+            hour_time = 0;
         }
 
-        if(rand() % 100 == 1) {
+        if(rand() % 17 == 1) {
         //printf("Car spawn\n");
         route_num = Random_Route_Num();
         car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
         car[car_count].carID = car_count;
         //printf("Car spawn id: %d\n", car[car_count].carID);
         car_count = car_count + 1;
+        car_count_in_an_hour++;
         //printf("Total number of cars: %d\n", car_count);
         }
 
@@ -117,6 +121,8 @@ int main() {
                 car[i].active = 2;
                 car[i].car_time = current_time - car[i].start_time;
                 all_times += current_time - car[i].start_time;
+                hour_time += current_time - car[i].start_time;
+
                 active_count = active_count + 1;
                 //printf("Active count = %d, car %d\n", active_count, car[i].carID);
             }
