@@ -5,7 +5,7 @@
 #define MAX_STRING_LENGTH 1000
 #define MAX_SPEED 14 /* 50km/t in m/s */
 #define CAR_LENGTH 4 /* meters */
-#define MAX_CARS 50
+#define MAX_CARS 20000
 #define MAX_ROUTES 4
 #define MAX_INTERSECTIONS 5
 #define MAX_TIME_VALUES 5000
@@ -54,14 +54,14 @@ int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
 void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number);
-int Collision_Check(Cars car, Cars *all_cars, int car_num, int i);
+int Collision_Check(Cars car, Cars *all_cars, int car_num, int i, int car_count);
 int Calculate_Collision_Status(int current_car_pos, int other_car_pos);
-int Number_Of_Active_Cars(Cars *all_cars);
+int Number_Of_Active_Cars(Cars *all_cars, int car_count);
 int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int car_speed);
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[20000];
+    Cars car[MAX_CARS];
     Traffic_Light Traffic_Lights[1];
     int all_times = 0, 
         i, 
@@ -77,54 +77,37 @@ int main() {
     Init_Traffic_Lights(Traffic_Lights);
 
     Get_Route(cr);
-    for(i = 0; i < MAX_CARS; i++) {
-        route_num = Random_Route_Num();
-        car[i] = Create_Car(car, &cr[route_num], i, 0);
-        car[i].carID = i + 1;
-        car_count = i;
-        car_count_in_an_hour++;
-    }
 
     while(current_time < SECONDS_PER_HOUR * 24) {      
         current_time++;
         if(current_time % SECONDS_PER_HOUR == 0) { 
-            printf("[%dh] average: %ds\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour)); 
-            printf("Car count: %d, hour time %d\n", car_count_in_an_hour, hour_time);
+            printf("[%dh] average: %ds, Car count: %d, Hour time: %d\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour), car_count, hour_time); 
             car_count_in_an_hour = 0;
             hour_time = 0;
         }
 
         if(rand() % 17 == 1) {
-        //printf("Car spawn\n");
         route_num = Random_Route_Num();
         car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
         car[car_count].carID = car_count;
-        //printf("Car spawn id: %d\n", car[car_count].carID);
         car_count = car_count + 1;
         car_count_in_an_hour++;
-        //printf("Total number of cars: %d\n", car_count);
         }
 
         for (i = 0; i < car_count; i++) {
-            //if(car[i].carID == 12 && i == 0) { printf("Hit\n"); }
-            //printf("\ncar %d, active: %d, pos: %d\n", car[6].carID, car[6].active, car[6].current_position);
             if(car[i].active == 0) {
                 car[i].active = 1;
             }
             if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) != 1) {
-                car[i].current_speed += Collision_Check(car[i], car, i, 0);
+                car[i].current_speed += Collision_Check(car[i], car, i, 0, car_count);
                 car[i].current_position += car[i].current_speed;
-                /* Run_Car((car + i), &all_times, i); */
             }
-            else if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) == 1){
-                /* printf("Car: %d, Route: %d\n", car[i].carID, car[i].route); */
+            else if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) == 1) {
                 car[i].active = 2;
                 car[i].car_time = current_time - car[i].start_time;
                 all_times += current_time - car[i].start_time;
                 hour_time += current_time - car[i].start_time;
-
                 active_count = active_count + 1;
-                //printf("Active count = %d, car %d\n", active_count, car[i].carID);
             }
 
             /* printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID); */
@@ -151,11 +134,6 @@ Cars Create_Car(Cars *car, Car_Route *cr, int i, int time) {
     car->current_speed = 0;
     car->start_time = time;
     return *car;
-}
-
-void Run_Car(Cars *car, int *all_times, int i) {
-    car[i].current_speed += Collision_Check(car[i], car, i, 0);
-    car[i].current_position += car[i].current_speed;
 }
 
 void Get_Route(Car_Route *cr) {
@@ -227,9 +205,6 @@ int Car_Turning(Cars car, Car_Route cr) {
             }
     }
     else if (car.current_position >= 800) {
-        /* printf("Car finished at time: %d \n", time); */
-        /* printf("Done with route, out of system.\n"); */
-        /* printf("Route end: --------- \n\n"); */
         return 1;
     }
     return 0;
@@ -269,19 +244,19 @@ void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_n
 
 enum Collision_Status { CarsSamePosition, CurrentCarCollides, OtherCarCollides, CollisionIsClose, NoCollision };
 
-int Collision_Check(Cars car, Cars *all_cars, int car_num, int i) {
+int Collision_Check(Cars car, Cars *all_cars, int car_num, int i, int car_count) {
     int current_car_pos = car.current_position,
         other_car_pos,
         collision_status,
         meters_until_collision, 
         number_of_active_cars;
 
-    number_of_active_cars = Number_Of_Active_Cars(all_cars);
+    number_of_active_cars = Number_Of_Active_Cars(all_cars, car_count);
 
     if(all_cars[i].active == 1 && i != car_num) 
         other_car_pos = all_cars[i].current_position;
     else if(i < number_of_active_cars)
-        return Collision_Check(car, all_cars, car_num, i + 1);
+        return Collision_Check(car, all_cars, car_num, i + 1, car_count);
     else return 0;
 
     collision_status = Calculate_Collision_Status(current_car_pos, other_car_pos);
@@ -311,7 +286,7 @@ int Collision_Check(Cars car, Cars *all_cars, int car_num, int i) {
         else if(collision_status == NoCollision) { /* Maintain same speed */
             /* printf("Maintain: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
             if(i < number_of_active_cars && car.current_speed > 0)
-                return Collision_Check(car, all_cars, car_num, i + 1);
+                return Collision_Check(car, all_cars, car_num, i + 1, car_count);
         }
     }
     if(car.current_speed <= 5)
@@ -336,9 +311,9 @@ int Calculate_Collision_Status(int current_car_pos, int other_car_pos) {
         return NoCollision;
 }
 
-int Number_Of_Active_Cars(Cars *all_cars) {
+int Number_Of_Active_Cars(Cars *all_cars, int car_count) {
     int i, active_cars_sum = 0;
-    for(i = 0; i < MAX_CARS; i++) {
+    for(i = 0; i < car_count; i++) {
         if(all_cars[i].active == 1) 
             active_cars_sum++;
     }
