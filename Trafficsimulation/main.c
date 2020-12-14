@@ -5,7 +5,7 @@
 #define MAX_STRING_LENGTH 1000
 #define MAX_SPEED 14 /* 50km/t in m/s */
 #define CAR_LENGTH 4 /* meters */
-#define MAX_CARS 100
+#define MAX_CARS 6
 #define MAX_ROUTES 4
 #define MAX_INTERSECTIONS 5
 #define MAX_TIME_VALUES 5000
@@ -43,7 +43,7 @@ enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
 
 Cars Create_Car(Cars *car, Car_Route *cr, int i);
-void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i);
+void Run_Car(Cars *car, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 int Random_Route_Num();
 void Print_Route_Summary(Car_Route cr);
@@ -52,6 +52,9 @@ int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
 void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number);
+int Collision_Check(Cars car, Cars *all_cars, int car_num, int i);
+int Calculate_Collision_Status(int current_car_pos, int other_car_pos);
+int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int car_speed);
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
@@ -76,7 +79,7 @@ int main() {
         car[i].carID = i;
     }
     
-    while(current_time < SECONDS_PER_HOUR * 24) {        
+    while(current_time < 100) {        
         current_time++;
         if(current_time % SECONDS_PER_HOUR == 0) { 
             car_count_in_an_hour = all_times;
@@ -89,16 +92,22 @@ int main() {
             if(car[i].active == 0) {
                 car[i].active = 1;
             }
-            if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) != 1){
+            if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) != 1) {
+                //printf("Collision: %d \n", Collision_Check(car[i], car, i));
+                car[i].current_speed += Collision_Check(car[i], car, i, 1);
+                /*
                 if(car[i].current_speed < MAX_SPEED) 
                     car[i].current_speed = MAX_SPEED;
+                */
                 car[i].current_position += car[i].current_speed;
-                //Run_Car(p, cr, &all_times, i);
+                printf("Speed: %lf \n", car[i].current_speed);
+                //Run_Car(car, &all_times, i);
             }
             else if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) == 1){
                 //printf("Car: %d, Route: %d\n", car[i].carID, car[i].route);
                 car[i].active = 2;
                 all_times += current_time;
+                printf("FINISH: %d \n", current_time);
             }
             //printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID);
         }
@@ -119,7 +128,7 @@ Cars Create_Car(Cars *car, Car_Route *cr, int i) {
     return *car;
 }
 
-void Run_Car(Cars *car, Car_Route *cr, int *all_times, int i) {
+void Run_Car(Cars *car, int *all_times, int i) {
     if(car -> current_speed < MAX_SPEED)    
         car -> current_speed = MAX_SPEED;
     car -> current_position += car -> current_speed;
