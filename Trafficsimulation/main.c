@@ -81,7 +81,7 @@ int main() {
     while(current_time < SECONDS_PER_HOUR * 24) {      
         current_time++;
         if(current_time % SECONDS_PER_HOUR == 0) { 
-            printf("[%dh] average: %ds, Car count: %d, Hour time: %d\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour), car_count, hour_time); 
+            printf("[%dh] average: %ds, Car count: %d, Hour time: %d\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour), car_count_in_an_hour, hour_time); 
             car_count_in_an_hour = 0;
             hour_time = 0;
         }
