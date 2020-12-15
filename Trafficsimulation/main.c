@@ -43,9 +43,10 @@ typedef struct Traffic_Light {
 enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
 
-Cars Create_Car(Cars *car, Car_Route *cr, int i, int time);
+int Most_Recent_In_Queue(int inactive_cars_queue[], int *index);
+int Empty_Spot_In_Queue(int inactive_cars_queue[]);
+Cars Create_Car(Cars *car, Car_Route *cr, int time);
 void Run_Car(Cars *car, int *all_times, int i);
-
 void Get_Route(Car_Route *cr);
 int Random_Route_Num();
 void Print_Route_Summary(Car_Route cr);
@@ -61,19 +62,25 @@ int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int 
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[MAX_CARS];
+    Cars car[350];
     Traffic_Light Traffic_Lights[1];
     int all_times = 0, 
         i, 
         current_time = 0, 
         current_hour = 0,
         car_count = 0,
+        total_cars = 0,
         car_count_in_an_hour = 0,
         route_num = 0,
-        hour_time = 0;
-    int active_count = 0;
+        hour_time = 0,
+        active_count = 0,
+        most_recent_in_queue = 0,
+        empty_spot_index = 0,
+        index = 0;
+    int inactive_cars_queue[350];
 
     srand(time(NULL));
+
     Init_Traffic_Lights(Traffic_Lights);
 
     Get_Route(cr);
@@ -87,11 +94,20 @@ int main() {
         }
 
         if(rand() % 17 == 1) {
-        route_num = Random_Route_Num();
-        car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
-        car[car_count].carID = car_count;
-        car_count = car_count + 1;
-        car_count_in_an_hour++;
+            route_num = Random_Route_Num();
+            if(car_count < 300) {
+                car[car_count] = Create_Car(car, &cr[route_num], current_time);
+                car[car_count].carID = car_count;
+                car_count++;
+            }
+            else {
+                most_recent_in_queue = Most_Recent_In_Queue(inactive_cars_queue, &index);
+                car[most_recent_in_queue] = Create_Car(car, &cr[route_num], current_time);
+                car[most_recent_in_queue].carID = most_recent_in_queue;
+                inactive_cars_queue[index] = 0;
+            }
+            car_count_in_an_hour++;
+            total_cars++;
         }
 
         for (i = 0; i < car_count; i++) {
@@ -104,10 +120,12 @@ int main() {
             }
             else if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) == 1) {
                 car[i].active = 2;
+                empty_spot_index = Empty_Spot_In_Queue(inactive_cars_queue);
+                inactive_cars_queue[empty_spot_index] = car[i].carID;
                 car[i].car_time = current_time - car[i].start_time;
                 all_times += current_time - car[i].start_time;
                 hour_time += current_time - car[i].start_time;
-                active_count = active_count + 1;
+                active_count++;
             }
             /* printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID); */
         }
@@ -116,14 +134,33 @@ int main() {
     for(i = 0; i < car_count; i++) {
         printf("CarID: %d, Car time: %d, Car active: %d\n", car[i].carID, car[i].car_time, car[i].active);
     }*/
-    printf("Total number of cars: %d\n", car_count - 1);
+    printf("Total number of cars: %d\n", total_cars - 1);
     printf("Total time for all cars: %ds\n", all_times);
-    printf("Average time of all cars: %ds\n", Average_Time(all_times, car_count));
+    printf("Average time of all cars: %ds\n", Average_Time(all_times, total_cars));
 
     return EXIT_SUCCESS;
 }
 
-Cars Create_Car(Cars *car, Car_Route *cr, int i, int time) {
+int Most_Recent_In_Queue(int inactive_cars_queue[], int *index) {
+    int i;
+    for(i = 0; i < 300; i++) {
+        if(inactive_cars_queue[i] != 0) {
+            *index = i;
+            return inactive_cars_queue[i];
+        }
+    }
+    return -1;
+}
+
+int Empty_Spot_In_Queue(int inactive_cars_queue[]) {
+    int i;
+    for(i = 0; i < 300; i++) {
+        if(inactive_cars_queue[i] == 0) 
+            return i;
+    }
+}
+
+Cars Create_Car(Cars *car, Car_Route *cr, int time) {
     car->current_position = cr->start_position;
     car->route = cr->route_number;
     car->driving_direction = cr->driving_direction;
@@ -252,7 +289,7 @@ int Collision_Check(Cars car, Cars *all_cars, int car_num, int i, int car_count)
 
     if(all_cars[i].active == 1 && i != car_num) 
         other_car_pos = all_cars[i].current_position;
-    else if(i < number_of_active_cars)
+    else if(i < car_count)
         return Collision_Check(car, all_cars, car_num, i + 1, car_count);
     else return 0;
 
