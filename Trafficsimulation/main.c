@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #define MAX_STRING_LENGTH 1000
 #define MAX_SPEED 14 /* 50km/t in m/s */
@@ -49,6 +50,7 @@ void Run_Car(Cars *car, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 int Random_Route_Num();
 void Print_Route_Summary(Car_Route cr);
+int chance_per_hour(int current_hour);
 int Car_Turning(Cars car, Car_Route cr);
 int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
@@ -70,10 +72,10 @@ int main() {
         car_count = 0,
         car_count_in_an_hour = 0,
         route_num = 0,
-        hour_time = 0;
-    int active_count = 0;
+        hour_time = 0,
+        active_count = 0;
 
-    srand(time(NULL));
+    srand(time(0));
     Init_Traffic_Lights(Traffic_Lights);
 
     Get_Route(cr);
@@ -86,12 +88,12 @@ int main() {
             hour_time = 0;
         }
 
-        if(rand() % 17 == 1) {
-        route_num = Random_Route_Num();
-        car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
-        car[car_count].carID = car_count;
-        car_count = car_count + 1;
-        car_count_in_an_hour++;
+        if(rand() % chance_per_hour(current_hour) == 1) {
+            route_num = Random_Route_Num();
+            car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
+            car[car_count].carID = car_count;
+            car_count = car_count + 1;
+            car_count_in_an_hour++;
         }
 
         for (i = 0; i < car_count; i++) {
@@ -116,7 +118,8 @@ int main() {
     for(i = 0; i < car_count; i++) {
         printf("CarID: %d, Car time: %d, Car active: %d\n", car[i].carID, car[i].car_time, car[i].active);
     }*/
-    printf("Total number of cars: %d\n", car_count - 1);
+    printf("\nTotal number of cars: %d\n", car_count - 1);
+    printf("Average number of cars per hour: %d\n", car_count/24);
     printf("Total time for all cars: %ds\n", all_times);
     printf("Average time of all cars: %ds\n", Average_Time(all_times, car_count));
 
@@ -167,6 +170,35 @@ void Print_Route_Summary(Car_Route cr) {
             case 4: direction = "Out of system"; break;
         }
         printf("In intersection %d go %s\n", i, direction);
+    }
+}
+
+int chance_per_hour(int current_hour) {
+    switch(current_hour) {
+        case 0: return 70;
+        case 1: return 70;
+        case 2: return 70;
+        case 3: return 70;
+        case 4: return 70;
+        case 5: return 35;
+        case 6: return 18;
+        case 7: return 8;
+        case 8: return 12;
+        case 9: return 14;
+        case 10: return 14;
+        case 11: return 14;
+        case 12: return 14;
+        case 13: return 12;
+        case 14: return 12;
+        case 15: return 8;
+        case 16: return 8;
+        case 17: return 12;
+        case 18: return 18;
+        case 19: return 23;
+        case 20: return 35;
+        case 21: return 35;
+        case 22: return 35;
+        case 23: return 70;
     }
 }
 
