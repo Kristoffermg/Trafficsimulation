@@ -53,7 +53,7 @@ int Car_Turning(Cars car, Car_Route cr);
 int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
-void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number);
+void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights);
 int Collision_Check(Cars car, Cars *all_cars, int car_num, int i, int car_count);
 int Calculate_Collision_Status(int current_car_pos, int other_car_pos);
 int Number_Of_Active_Cars(Cars *all_cars, int car_count);
@@ -62,7 +62,7 @@ int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
     Cars car[MAX_CARS];
-    Traffic_Light Traffic_Lights[1];
+    Traffic_Light Traffic_Lights[2];
     int all_times = 0, 
         i, 
         current_time = 0, 
@@ -80,6 +80,7 @@ int main() {
 
     while(current_time < SECONDS_PER_HOUR * 24) {      
         current_time++;
+        Run_Traffic_Lights(current_time, Traffic_Lights);
         if(current_time % SECONDS_PER_HOUR == 0) { 
             printf("[%dh] average: %ds, Car count: %d, Hour time: %d\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour), car_count_in_an_hour, hour_time); 
             car_count_in_an_hour = 0;
@@ -99,8 +100,13 @@ int main() {
                 car[i].active = 1;
             }
             if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) != 1) {
-                car[i].current_speed += Collision_Check(car[i], car, i, 0, car_count);
-                car[i].current_position += car[i].current_speed;
+                if(Traffic_Lights->color == Green){
+                    car[i].current_speed += Collision_Check(car[i], car, i, 0, car_count);
+                    car[i].current_position += car[i].current_speed;
+                }
+                else{
+                    car[i].current_position += 0;
+                }
             }
             else if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) == 1) {
                 car[i].active = 2;
@@ -212,31 +218,33 @@ int Average_Time(int all_times, int car_count) {
 }
 
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights){
-    Traffic_Lights[0].color = Green;
-    Traffic_Lights[0].time_to_switch = 5;
-    Traffic_Lights[0].next_color_switch = 5;
+    Traffic_Lights->color = Green;
+    Traffic_Lights->time_to_switch = 40;
+    Traffic_Lights->next_color_switch = 5;
 
-    Traffic_Lights[1].color = Red;
-    Traffic_Lights[1].time_to_switch = 5;
-    Traffic_Lights[1].next_color_switch = 5;
+    Traffic_Lights++; /* Sets the pointer to the next position in the array */
+
+    Traffic_Lights->color = Green;
+    Traffic_Lights->time_to_switch = 40;
+    Traffic_Lights->next_color_switch = 5;
 
 }
 
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights){
     int i = 0; 
     for (i = 0; i<2; i++) {
-        if (time == Traffic_Lights[i].next_color_switch) {
-            Traffic_Light_Swap_Color(Traffic_Lights, i);
-            Traffic_Lights[i].next_color_switch = time + Traffic_Lights[i].time_to_switch;
+        if (time == Traffic_Lights->next_color_switch) {
+            Traffic_Light_Swap_Color(Traffic_Lights+i);
+            Traffic_Lights->next_color_switch = time + Traffic_Lights->time_to_switch;
         }
     }
 }
 
-void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights, int traffic_light_number){
-    if (Traffic_Lights[traffic_light_number].color == Green)
-        Traffic_Lights[traffic_light_number].color = Red;
-    else if (Traffic_Lights[traffic_light_number].color == Red)
-        Traffic_Lights[traffic_light_number].color = Green;
+void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights){
+    if (Traffic_Lights->color == Green)
+        Traffic_Lights->color = Red;
+    else if (Traffic_Lights->color == Red)
+        Traffic_Lights->color = Green;
 }
 
 enum Collision_Status { CarsSamePosition, CurrentCarCollides, OtherCarCollides, CollisionIsClose, NoCollision };
