@@ -145,7 +145,7 @@ int main() {
         printf("CarID: %d, Car time: %d, Car active: %d\n", car[i].carID, car[i].car_time, car[i].active);
     }*/
     printf("Total number of cars: %d\n", total_cars - 1);
-    printf("Average number of cars per hour: %d\n", car_count/24);
+    printf("Average number of cars per hour: %d\n", total_cars/24);
 
     printf("Total time for all cars: %ds\n", all_times);
     printf("Average time of all cars: %ds\n", Average_Time(all_times, total_cars));
