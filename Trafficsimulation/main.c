@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #define MAX_STRING_LENGTH 1000
 #define MAX_SPEED 14 /* 50km/t in m/s */
 #define CAR_LENGTH 4 /* meters */
+#define SIMULATE_CARS 10000.0
 #define MAX_CARS 20000
 #define MAX_ROUTES 4
 #define MAX_INTERSECTIONS 5
@@ -51,6 +53,7 @@ void Run_Car(Cars *car, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 int Random_Route_Num();
 void Print_Route_Summary(Car_Route cr);
+int chance_per_hour(int current_hour);
 int Car_Turning(Cars car, Car_Route cr);
 int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
@@ -75,6 +78,7 @@ int main() {
         route_num = 0,
         hour_time = 0,
         active_count = 0,
+        chance_first_hour = 0,
         most_recent_in_queue = 0,
         empty_spot_index = 0,
         index = 0;
@@ -86,6 +90,10 @@ int main() {
 
     Get_Route(cr);
 
+    chance_first_hour = 70 *(5000.0 / SIMULATE_CARS);
+
+    printf("Chance %d\n", chance_first_hour);
+
     while(current_time < SECONDS_PER_HOUR * 24) {      
         current_time++;
         Run_Traffic_Lights(current_time, Traffic_Lights);
@@ -95,7 +103,7 @@ int main() {
             hour_time = 0;
         }
 
-        if(rand() % 17 == 1) {
+        if(rand() % (chance_first_hour / chance_per_hour(current_hour)) == 1) {
             route_num = Random_Route_Num();
             if(car_count < 300) {
                 car[car_count] = Create_Car(car, &cr[route_num], current_time);
@@ -137,6 +145,8 @@ int main() {
         printf("CarID: %d, Car time: %d, Car active: %d\n", car[i].carID, car[i].car_time, car[i].active);
     }*/
     printf("Total number of cars: %d\n", total_cars - 1);
+    printf("Average number of cars per hour: %d\n", car_count/24);
+
     printf("Total time for all cars: %ds\n", all_times);
     printf("Average time of all cars: %ds\n", Average_Time(all_times, total_cars));
 
@@ -206,6 +216,35 @@ void Print_Route_Summary(Car_Route cr) {
             case 4: direction = "Out of system"; break;
         }
         printf("In intersection %d go %s\n", i, direction);
+    }
+}
+
+int chance_per_hour(int current_hour) {
+    switch(current_hour) {
+        case 0: return 1;
+        case 1: return 1;
+        case 2: return 1;
+        case 3: return 1;
+        case 4: return 1;
+        case 5: return 2;
+        case 6: return 4;
+        case 7: return 9;
+        case 8: return 6;
+        case 9: return 5;
+        case 10: return 5;
+        case 11: return 5;
+        case 12: return 5;
+        case 13: return 6;
+        case 14: return 6;
+        case 15: return 9;
+        case 16: return 8;
+        case 17: return 6;
+        case 18: return 4;
+        case 19: return 3;
+        case 20: return 2;
+        case 21: return 2;
+        case 22: return 2;
+        case 23: return 1;
     }
 }
 
