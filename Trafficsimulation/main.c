@@ -39,11 +39,13 @@ typedef struct Traffic_Light {
     int time_to_switch_green;
     int time_to_switch_red;
     int next_color_switch;
+    int buffer_to_other_intersection;
 } Traffic_Light;
 
 enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
 
+void Coordination_Between_Traffic_Lights(Cars *car, Traffic_Light *traffic_light_left, Traffic_Light *traffic_light_right);
 int Most_Recent_In_Queue(int inactive_cars_queue[], int *index);
 int Empty_Spot_In_Queue(int inactive_cars_queue[]);
 Cars Create_Car(Cars *car, Car_Route *cr, int time);
@@ -86,7 +88,7 @@ int main() {
 
     Get_Route(cr);
 
-    while(current_time < SECONDS_PER_HOUR * 24) {      
+    while(current_time < SECONDS_PER_HOUR * 1) {      
         current_time++;
         Run_Traffic_Lights(current_time, Traffic_Lights);
         if(current_time % SECONDS_PER_HOUR == 0) { 
@@ -113,6 +115,8 @@ int main() {
         }
 
         for (i = 0; i < car_count; i++) {
+            //Coordination_Between_Traffic_Lights(car + i, Traffic_Lights, Traffic_Lights + 1);
+
             if(car[i].active == 0) {
                 car[i].active = 1;
             }
@@ -129,6 +133,7 @@ int main() {
                 hour_time += current_time - car[i].start_time;
                 active_count++;
             }
+
             /* printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID); */
         }
     }
@@ -141,6 +146,18 @@ int main() {
     printf("Average time of all cars: %ds\n", Average_Time(all_times, total_cars));
 
     return EXIT_SUCCESS;
+}
+
+void Coordination_Between_Traffic_Lights(Cars *car, Traffic_Light *traffic_light_left, Traffic_Light *traffic_light_right){
+    if(car->current_position >= 116 && car->current_position <= 125 && car->driving_direction == East){
+        if(traffic_light_left->buffer_to_other_intersection < 10)
+            traffic_light_left->buffer_to_other_intersection++;
+        //printf("buffer2: %d time to switch2: %d \n", traffic_light_left->buffer_to_other_intersection, traffic_light_right->time_to_switch_green + (traffic_light_left->buffer_to_other_intersection * 2));
+    }
+    else if(car->current_position >= 500 && car->current_position <= 513 && car->driving_direction == West){
+        if(traffic_light_right->buffer_to_other_intersection < 10)
+            traffic_light_right->buffer_to_other_intersection++;
+    }
 }
 
 int Most_Recent_In_Queue(int inactive_cars_queue[], int *index) {
@@ -267,12 +284,14 @@ void Init_Traffic_Lights(Traffic_Light *Traffic_Lights){
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights){
     int i = 0; 
     for (i = 0; i<2; i++) {
-        if (time == Traffic_Lights->next_color_switch) {
+        if (time == Traffic_Lights->next_color_switch + (Traffic_Lights->buffer_to_other_intersection * 2)) {
             if(Traffic_Lights->color == Green)
                 Traffic_Lights->next_color_switch = time + Traffic_Lights->time_to_switch_green;
             else if(Traffic_Lights->color == Red)
                 Traffic_Lights->next_color_switch = time + Traffic_Lights->time_to_switch_red;
             Traffic_Light_Swap_Color(Traffic_Lights+i);
+            Traffic_Lights->buffer_to_other_intersection = 0;
+            Traffic_Lights++;
         }
     }
 }
