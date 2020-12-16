@@ -115,8 +115,6 @@ int main() {
                 car[most_recent_in_queue].carID = most_recent_in_queue;
                 inactive_cars_queue[index] = 0;
             }
-            car_count_in_an_hour++;
-            total_cars++;
         }
 
         for (i = 0; i < car_count; i++) {
@@ -138,6 +136,8 @@ int main() {
                 all_times += current_time - car[i].start_time;
                 hour_time += current_time - car[i].start_time;
                 active_count++;
+                total_cars++;
+                car_count_in_an_hour++;
             }
             /* printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID); */
         }
