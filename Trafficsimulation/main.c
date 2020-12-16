@@ -282,10 +282,7 @@ int Collision_Check(Cars car, Cars *all_cars, int car_num, int i, int car_count)
     int current_car_pos = car.current_position,
         other_car_pos,
         collision_status,
-        meters_until_collision, 
-        number_of_active_cars;
-
-    number_of_active_cars = Number_Of_Active_Cars(all_cars, car_count);
+        meters_until_collision;
 
     if(all_cars[i].active == 1 && i != car_num) 
         other_car_pos = all_cars[i].current_position;
@@ -319,7 +316,7 @@ int Collision_Check(Cars car, Cars *all_cars, int car_num, int i, int car_count)
         }
         else if(collision_status == NoCollision) { /* Maintain same speed */
             /* printf("Maintain: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
-            if(i < number_of_active_cars && car.current_speed > 0)
+            if(i < car_count && car.current_speed > 0)
                 return Collision_Check(car, all_cars, car_num, i + 1, car_count);
         }
     }
