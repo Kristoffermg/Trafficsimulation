@@ -6,6 +6,7 @@
 #define MAX_STRING_LENGTH 1000
 #define MAX_SPEED 14 /* 50km/t in m/s */
 #define CAR_LENGTH 4 /* meters */
+#define SIMULATE_CARS 10000.0
 #define MAX_CARS 20000
 #define MAX_ROUTES 4
 #define MAX_INTERSECTIONS 5
@@ -73,12 +74,17 @@ int main() {
         car_count_in_an_hour = 0,
         route_num = 0,
         hour_time = 0,
-        active_count = 0;
+        active_count = 0,
+        chance_first_hour = 0;
 
     srand(time(0));
     Init_Traffic_Lights(Traffic_Lights);
 
     Get_Route(cr);
+
+    chance_first_hour = 70 *(5000.0 / SIMULATE_CARS);
+
+    printf("Chance %d\n", chance_first_hour);
 
     while(current_time < SECONDS_PER_HOUR * 24) {      
         current_time++;
@@ -88,7 +94,8 @@ int main() {
             hour_time = 0;
         }
 
-        if(rand() % chance_per_hour(current_hour) == 1) {
+
+        if(rand() % (chance_first_hour / chance_per_hour(current_hour)) == 1) {
             route_num = Random_Route_Num();
             car[car_count] = Create_Car(car, &cr[route_num], i, current_time);
             car[car_count].carID = car_count;
@@ -175,30 +182,30 @@ void Print_Route_Summary(Car_Route cr) {
 
 int chance_per_hour(int current_hour) {
     switch(current_hour) {
-        case 0: return 70;
-        case 1: return 70;
-        case 2: return 70;
-        case 3: return 70;
-        case 4: return 70;
-        case 5: return 35;
-        case 6: return 18;
-        case 7: return 8;
-        case 8: return 12;
-        case 9: return 14;
-        case 10: return 14;
-        case 11: return 14;
-        case 12: return 14;
-        case 13: return 12;
-        case 14: return 12;
-        case 15: return 8;
+        case 0: return 1;
+        case 1: return 1;
+        case 2: return 1;
+        case 3: return 1;
+        case 4: return 1;
+        case 5: return 2;
+        case 6: return 4;
+        case 7: return 9;
+        case 8: return 6;
+        case 9: return 5;
+        case 10: return 5;
+        case 11: return 5;
+        case 12: return 5;
+        case 13: return 6;
+        case 14: return 6;
+        case 15: return 9;
         case 16: return 8;
-        case 17: return 12;
-        case 18: return 18;
-        case 19: return 23;
-        case 20: return 35;
-        case 21: return 35;
-        case 22: return 35;
-        case 23: return 70;
+        case 17: return 6;
+        case 18: return 4;
+        case 19: return 3;
+        case 20: return 2;
+        case 21: return 2;
+        case 22: return 2;
+        case 23: return 1;
     }
 }
 
