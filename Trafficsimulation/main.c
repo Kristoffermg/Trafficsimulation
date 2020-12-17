@@ -152,12 +152,12 @@ int main() {
 }
 
 void Coordination_Between_Traffic_Lights(Car *car, Traffic_Light *traffic_light_left, Traffic_Light *traffic_light_right){
-    if(car->current_position >= 116 && car->current_position <= 125 && car->driving_direction == East){
+    if(car->current_position >= 50 && car->current_position <= 65 && car->driving_direction == East){
         if(traffic_light_left->buffer_to_other_intersection < 10)
             traffic_light_left->buffer_to_other_intersection++;
         //printf("buffer2: %d time to switch2: %d \n", traffic_light_left->buffer_to_other_intersection, traffic_light_right->time_to_switch_green + (traffic_light_left->buffer_to_other_intersection * 2));
     }
-    else if(car->current_position >= 500 && car->current_position <= 513 && car->driving_direction == West){
+    else if(car->current_position >= 410 && car->current_position <= 425 && car->driving_direction == West){
         if(traffic_light_right->buffer_to_other_intersection < 10)
             traffic_light_right->buffer_to_other_intersection++;
     }
@@ -259,37 +259,37 @@ int chance_per_hour(int current_hour) {
 }
 
 int Car_Turning(Car car, Car_Route cr) {
-    if(car.current_position >= 100 && car.current_position <= 125) {
+    if(car.current_position >= 50 && car.current_position <= 65) {
         car.driving_direction = cr.intersections[0];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
                 return 1;
             }
     }
-    else if(car.current_position >= 200 && car.current_position <= 225) {    
+    else if(car.current_position >= 128 && car.current_position <= 143) {    
         car.driving_direction = cr.intersections[1];
             if(car.driving_direction != 2 && car.driving_direction != 3 ) {
                 return 1;
             }
     }
-    else if(car.current_position >= 300 && car.current_position <= 325) {
+    else if(car.current_position >= 242 && car.current_position <= 257) {
         car.driving_direction = cr.intersections[2];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
                 return 1;
             }
     }
-    else if(car.current_position >= 400 && car.current_position <= 425) {
+    else if(car.current_position >= 322 && car.current_position <= 337) {
         car.driving_direction = cr.intersections[3];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
                 return 1;
             }
     }
-    else if(car.current_position >= 500 && car.current_position <= 525) {
+    else if(car.current_position >= 410 && car.current_position <= 425) {
         car.driving_direction = cr.intersections[4];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
                 return 1;
             }
     }
-    else if (car.current_position >= 800 && car.driving_direction == East) 
+    else if (car.current_position >= 475 && car.driving_direction == East) 
         return 1;
     else if(car.current_position <= 0 && car.driving_direction == West)
         return 1;
