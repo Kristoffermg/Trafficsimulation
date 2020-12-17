@@ -7,7 +7,7 @@
 #define MAX_SPEED 14 /* 50km/t in m/s */
 #define CAR_LENGTH 4 /* meters */
 #define MAX_CARS 20000
-#define MAX_ROUTES 32
+#define MAX_ROUTES 16
 #define MAX_INTERSECTIONS 5
 #define MAX_TIME_VALUES 5000
 #define SECONDS_PER_HOUR 3600
@@ -89,14 +89,14 @@ int main() {
         index = 0;
     int inactive_cars_queue[350];
     char yes_or_no;
-
+    
     srand(time(NULL));
 
     printf("Do you want coordinated traffic lights (yes=y, no=n):");
     scanf("%c", &yes_or_no);
     printf("How many cars do you minimum want to simulate:");
     scanf("%d", &cars_to_simulate);
-
+    if(yes_or_no == 'n')
     Init_Traffic_Lights(Traffic_Lights);
 
     Get_Route(cr);
@@ -107,7 +107,7 @@ int main() {
         current_time++;
         Run_Traffic_Lights(current_time, Traffic_Lights);
         if(current_time % SECONDS_PER_HOUR == 0) { 
-            printf("[%dh] average: %ds, Car count: %d, Hour time: %d\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour), car_count_in_an_hour, hour_time); 
+            printf("[%dh] average: %ds, Car count: %d, Hour time: %d\n", ++current_hour, Average_Time(hour_time, car_count_in_an_hour), car_count_in_an_hour, hour_time);
             car_count_in_an_hour = 0;
             hour_time = 0;
         }
@@ -137,7 +137,7 @@ int main() {
                     car[i].active = 1;
                 else if(car[i].start_position == 410 && Traffic_Lights[1].color == Green)
                     car[i].active = 1;
-                else{
+                else if(car[i].start_position != 50 && car[i].start_position != 410) {
                     car[i].active = 1;
                 }
             }
@@ -334,16 +334,22 @@ int Average_Time(int all_times, int car_count) {
 }
 
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights){
+    int green_time;
+    int red_time;
+    printf("Insert amount of time traffic lights should be red or green for main road\n Red: ");
+    scanf("%d",&red_time);
+    printf("\nGreen: ");
+    scanf("%d",&green_time);
     Traffic_Lights->color = Green;
-    Traffic_Lights->time_to_switch_green = 40;
-    Traffic_Lights->time_to_switch_red = 20;
+    Traffic_Lights->time_to_switch_green = green_time;
+    Traffic_Lights->time_to_switch_red = red_time;
     Traffic_Lights->next_color_switch = 5;
 
     Traffic_Lights++; /* Sets the pointer to the next position in the array */
 
     Traffic_Lights->color = Green;
-    Traffic_Lights->time_to_switch_green = 40;
-    Traffic_Lights->time_to_switch_red = 20;
+    Traffic_Lights->time_to_switch_green = green_time;
+    Traffic_Lights->time_to_switch_red = red_time;
     Traffic_Lights->next_color_switch = 5;
 }
 
@@ -351,13 +357,15 @@ void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights){
     int i = 0; 
     for (i = 0; i<2; i++) {
         if (time == Traffic_Lights->next_color_switch + Traffic_Lights->buffer_from_other_intersection - Traffic_Lights->buffer_own_vertical) {
-            if(Traffic_Lights->color == Green)
+            if(Traffic_Lights->color == Green){
                 Traffic_Lights->next_color_switch = time + Traffic_Lights->time_to_switch_green;
-            else if(Traffic_Lights->color == Red)
+                Traffic_Lights->buffer_from_other_intersection = 0;
+            }
+            else if(Traffic_Lights->color == Red){
                 Traffic_Lights->next_color_switch = time + Traffic_Lights->time_to_switch_red;
+                Traffic_Lights->buffer_own_vertical = 0;
+            }
             Traffic_Light_Swap_Color(Traffic_Lights+i);
-            Traffic_Lights->buffer_from_other_intersection = 0;
-            Traffic_Lights->buffer_own_vertical = 0;
             Traffic_Lights++;
         }
     }
@@ -379,7 +387,7 @@ int Check_If_Stop_For_Traffic_Light(Car car, Traffic_Light *traffic_lights){
         return 410;
     else if(car.current_position >= 418 && car.current_position <= 435 && traffic_lights->color == Red)
         return 425;
-    return -1;
+    return 0;
 }
 
 int Speed_Change_If_Collision(Car car, Car *all_cars, Traffic_Light *traffic_lights, int car_num, int i, int car_count) {
@@ -392,11 +400,11 @@ int Speed_Change_If_Collision(Car car, Car *all_cars, Traffic_Light *traffic_lig
         other_car_pos = all_cars[i].current_position;
     else if(i < car_count)
         return Speed_Change_If_Collision(car, all_cars, traffic_lights, car_num, i + 1, car_count);
-    else if(Check_If_Stop_For_Traffic_Light(car, traffic_lights) != -1){
+    else if(Check_If_Stop_For_Traffic_Light(car, traffic_lights) != 0){
         other_car_pos = Check_If_Stop_For_Traffic_Light(car, traffic_lights);
     }
-    else if(Check_If_Stop_For_Traffic_Light(car, traffic_lights+1) != -1){
-        other_car_pos = Check_If_Stop_For_Traffic_Light(car, traffic_lights);
+    else if(Check_If_Stop_For_Traffic_Light(car, traffic_lights + 1) != 0){
+        other_car_pos = Check_If_Stop_For_Traffic_Light(car, traffic_lights + 1);
     }
     else return 0;
 
