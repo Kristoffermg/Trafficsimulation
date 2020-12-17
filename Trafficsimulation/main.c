@@ -13,7 +13,7 @@
 #define MAX_TIME_VALUES 5000
 #define SECONDS_PER_HOUR 3600
 
-typedef struct Cars {
+typedef struct Car {
     int carID;
     double current_speed;
     int start_time;
@@ -22,7 +22,7 @@ typedef struct Cars {
     int driving_direction; /* uses enum directions values */
     int active; /* 0 if car haven't entered system, 1 if it's currently in the system, 2 if it finished */
     int car_time;
-} Cars;
+} Car;
 
 struct Intersection {
     int is_traffic_light;
@@ -45,27 +45,28 @@ typedef struct Traffic_Light {
 
 enum direction { North, South, East, West, OutOfSystem };
 enum Traffic_Light_Colors { Green, Yellow, Red};
+enum Collision_Status { CarsSamePosition, CurrentCarCollides, OtherCarCollides, CollisionIsClose, NoCollision };
 
+Car Create_Car(Car *car, Car_Route *cr, int time);
 int Most_Recent_In_Queue(int inactive_cars_queue[], int *index);
 int Empty_Spot_In_Queue(int inactive_cars_queue[]);
-Cars Create_Car(Cars *car, Car_Route *cr, int time);
-void Run_Car(Cars *car, int *all_times, int i);
+void Run_Car(Car *car, int *all_times, int i);
 void Get_Route(Car_Route *cr);
 int Random_Route_Num();
 void Print_Route_Summary(Car_Route cr);
 int chance_per_hour(int current_hour);
-int Car_Turning(Cars car, Car_Route cr);
+int Car_Turning(Car car, Car_Route cr);
 int Average_Time(int all_times, int car_count);
 void Init_Traffic_Lights(Traffic_Light *Traffic_Lights);
 void Run_Traffic_Lights(int time, Traffic_Light *Traffic_Lights);
 void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights);
-int Collision_Check(Cars car, Cars *all_cars, Traffic_Light *traffic_lights, int car_num, int i, int car_count);
-int Calculate_Collision_Status(int current_car_pos, int other_car_pos, int driving_direction);
-int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int car_speed);
+int Speed_Change_If_Collision(Car car, Car *all_cars, Traffic_Light *traffic_lights, int car_num, int i, int car_count);
+int Determine_Collision_Status(int current_car_pos, int other_car_pos, int driving_direction);
+int Determine_Speed_Change_To_Avoid_Collision(int meters_until_collision, int car_speed);
 
 int main() {
     Car_Route cr[MAX_ROUTES]; /* cr = car route */
-    Cars car[350];
+    Car car[350];
     Traffic_Light Traffic_Lights[2];
     int all_times = 0, 
         i, 
@@ -122,7 +123,7 @@ int main() {
                 car[i].active = 1;
             }
             if(car[i].active == 1 && Car_Turning(car[i], cr[car[i].route]) != 1) {
-                car[i].current_speed += Collision_Check(car[i], car, Traffic_Lights, i, 0, car_count);
+                car[i].current_speed += Speed_Change_If_Collision(car[i], car, Traffic_Lights, i, 0, car_count);
                 if(car[i].driving_direction == East)
                     car[i].current_position += car[i].current_speed;
                 else if(car[i].driving_direction == West)
@@ -139,13 +140,8 @@ int main() {
                 total_cars++;
                 car_count_in_an_hour++;
             }
-            /* printf("Current pos: %lf time: %d ID: %d \n", car[i].current_position, time, car[i].carID); */
         }
     }
-    /*
-    for(i = 0; i < car_count; i++) {
-        printf("CarID: %d, Car time: %d, Car active: %d\n", car[i].carID, car[i].car_time, car[i].active);
-    }*/
     printf("Total number of cars: %d\n", total_cars - 1);
     printf("Average number of cars per hour: %d\n", total_cars/24);
 
@@ -174,7 +170,7 @@ int Empty_Spot_In_Queue(int inactive_cars_queue[]) {
     }
 }
 
-Cars Create_Car(Cars *car, Car_Route *cr, int time) {
+Car Create_Car(Car *car, Car_Route *cr, int time) {
     car->current_position = cr->start_position;
     car->route = cr->route_number;
     car->driving_direction = cr->driving_direction;
@@ -250,7 +246,7 @@ int chance_per_hour(int current_hour) {
     }
 }
 
-int Car_Turning(Cars car, Car_Route cr) {
+int Car_Turning(Car car, Car_Route cr) {
     if(car.current_position >= 100 && car.current_position <= 125) {
         car.driving_direction = cr.intersections[0];
             if(car.driving_direction != 2 && car.driving_direction != 3) {
@@ -326,20 +322,16 @@ void Traffic_Light_Swap_Color(Traffic_Light *Traffic_Lights){
         Traffic_Lights->color = Green;
 }
 
-enum Collision_Status { CarsSamePosition, CurrentCarCollides, OtherCarCollides, CollisionIsClose, NoCollision };
-
-int Collision_Check(Cars car, Cars *all_cars, Traffic_Light *traffic_lights, int car_num, int i, int car_count) {
+int Speed_Change_If_Collision(Car car, Car *all_cars, Traffic_Light *traffic_lights, int car_num, int i, int car_count) {
     int current_car_pos = car.current_position,
         other_car_pos,
         collision_status,
         meters_until_collision;
 
-    if(all_cars[i].active == 1 && i != car_num && car.driving_direction == all_cars[i].driving_direction) {
+    if(all_cars[i].active == 1 && i != car_num && car.driving_direction == all_cars[i].driving_direction)
         other_car_pos = all_cars[i].current_position;
-        //printf("current: %d other: %d directionc: %d directiono: %d\n", current_car_pos, other_car_pos, car.driving_direction, all_cars[i].driving_direction);
-    }
     else if(i < car_count)
-        return Collision_Check(car, all_cars, traffic_lights, car_num, i + 1, car_count);
+        return Speed_Change_If_Collision(car, all_cars, traffic_lights, car_num, i + 1, car_count);
     else if(car.current_position >= 86 && car.current_position <= 108 && traffic_lights->color == Red)
         other_car_pos = 100;
     else if(car.current_position >= 117 && car.current_position <= 139 && traffic_lights->color == Red)
@@ -350,11 +342,9 @@ int Collision_Check(Cars car, Cars *all_cars, Traffic_Light *traffic_lights, int
         other_car_pos = 525;
     else return 0;
 
-    collision_status = Calculate_Collision_Status(current_car_pos, other_car_pos, car.driving_direction);
-    //printf("----%d-----\n", collision_status);
+    collision_status = Determine_Collision_Status(current_car_pos, other_car_pos, car.driving_direction);
 
     if(collision_status == CarsSamePosition) { /* Quick speed boost when cars start on top of each other at the same time */
-        /* printf("SAME POSITION: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
         if(car.current_speed <= 4)
             return 5;
         else if(car.current_speed >= 5 && car.current_speed <= 9) 
@@ -364,35 +354,31 @@ int Collision_Check(Cars car, Cars *all_cars, Traffic_Light *traffic_lights, int
         else return -2;
     }
     else if(collision_status == OtherCarCollides) { /* Drive faster */
-        /* printf("FASTER: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
         if(car.current_speed + 2 <= MAX_SPEED)
             return 2;
         else return -2;
     }
-    else if(collision_status == CollisionIsClose) {
+    else if(collision_status == CollisionIsClose) { /* Increase/decrease speed depending on collision risk */
         if(car.driving_direction == East)
             meters_until_collision = other_car_pos - current_car_pos;
         else if(car.driving_direction == West)
             meters_until_collision = current_car_pos - other_car_pos;
-        /* printf("CLOSE: Current_pos: %d other_car: %d until_collision: %d\n", current_car_pos, other_car_pos, meters_until_collision); */
-        return -Calculate_Speed_Decrease_To_Avoid_Collision(meters_until_collision, car.current_speed);
+        return -Determine_Speed_Change_To_Avoid_Collision(meters_until_collision, car.current_speed);
     }
     else if(collision_status == NoCollision) { /* Maintain same speed */
-        /* printf("Maintain: Current_pos: %d other_car: %d \n", current_car_pos, other_car_pos); */
         if(i < car_count && car.current_speed > 0)
-            return Collision_Check(car, all_cars, traffic_lights, car_num, i + 1, car_count);
+            return Speed_Change_If_Collision(car, all_cars, traffic_lights, car_num, i + 1, car_count);
+        else if(car.current_speed <= 5)
+            return 5;
+        else if(car.current_speed >= 6 && car.current_speed <= 9)
+            return 3;
+        else if(car.current_speed >= 10 && car.current_speed < 14)
+            return 1;
     }
-
-    if(car.current_speed <= 5)
-        return 5;
-    else if(car.current_speed >= 6 && car.current_speed <= 9)
-        return 3;
-    else if(car.current_speed >= 10 && car.current_speed < 14)
-        return 1;
     return 0;
 }
 
-int Calculate_Collision_Status(int current_car_pos, int other_car_pos, int driving_direction) { 
+int Determine_Collision_Status(int current_car_pos, int other_car_pos, int driving_direction) { 
     if(driving_direction == East) {
         if(current_car_pos == other_car_pos)
         return CarsSamePosition;
@@ -400,7 +386,7 @@ int Calculate_Collision_Status(int current_car_pos, int other_car_pos, int drivi
         return CurrentCarCollides;
     else if((other_car_pos + 2) >= current_car_pos && (other_car_pos + 2) <= (current_car_pos + 2))
         return OtherCarCollides;
-    else if(other_car_pos > (current_car_pos + 2) && other_car_pos < (current_car_pos + 2) + 8)  /* Checks if the other car is between the current car to 10 meters ahead of the current car */
+    else if(other_car_pos > (current_car_pos + 2) && other_car_pos < (current_car_pos + 2) + 15)  /* Checks if the other car is between the current car to 10 meters ahead of the current car */
         return CollisionIsClose;
     else
         return NoCollision;
@@ -412,7 +398,7 @@ int Calculate_Collision_Status(int current_car_pos, int other_car_pos, int drivi
             return CurrentCarCollides;
         else if((other_car_pos - 2) <= current_car_pos && (other_car_pos - 2) >= (current_car_pos - 2))
             return OtherCarCollides;
-        else if(other_car_pos < (current_car_pos - 2) && other_car_pos > (current_car_pos - 2) - 8)  /* Checks if the other car is between the current car to 10 meters ahead of the current car */
+        else if(other_car_pos < (current_car_pos - 2) && other_car_pos > (current_car_pos - 2) - 15)  /* Checks if the other car is between the current car to 10 meters ahead of the current car */
             return CollisionIsClose;
         else
             return NoCollision;
@@ -420,18 +406,23 @@ int Calculate_Collision_Status(int current_car_pos, int other_car_pos, int drivi
     return -1;
 }
 
-int Calculate_Speed_Decrease_To_Avoid_Collision(int meters_until_collision, int car_speed) {
+int Determine_Speed_Change_To_Avoid_Collision(int meters_until_collision, int car_speed) {
     if(meters_until_collision <= 2) 
         return car_speed;
     else if(meters_until_collision >= 3 && meters_until_collision <= 6) {
-        if(car_speed >= 3)
-            return 3;
+        if(car_speed >= 2)
+            return car_speed - 2;
         else return -1;
     }
     else if(meters_until_collision >= 7 && meters_until_collision <= 10) {
         if(car_speed >= 6)
-            return 6;
+            return car_speed - 6;
         else return -2;
+    }
+    else if(meters_until_collision >= 11 && meters_until_collision <= 15) {
+        if(car_speed >= 12) 
+            return car_speed - 12;
+        else return -5;
     }
     return 0;
 }
