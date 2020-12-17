@@ -1,6 +1,9 @@
 0 350 3 3 3 3 3 3
-1 0 2 2 1 4 4 4
-2 0 2 0 4 4 4 4
-3 0 2 2 2 1 4 4
+1 0 2 2 2 2 2 2
+2 0 2 2 1 4 4 4
+3 0 2 0 4 4 4 4
+4 0 2 2 2 1 4 4
+5 100 2 2 2 2 2 2
+6 200 2 2 2 2 2 2
 
 route | start_pos | driving_direction | Intersection 0 | Intersection 1 | Intersection 2 | Intersection 3 | Intersection 4 |
