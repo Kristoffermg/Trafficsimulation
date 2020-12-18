@@ -7,7 +7,7 @@
 #define MAX_SPEED 14 /* 50km/t in m/s */
 #define CAR_LENGTH 4 /* meters */
 #define MAX_CARS 20000
-#define MAX_ROUTES 4
+#define MAX_ROUTES 53
 #define MAX_INTERSECTIONS 5
 #define MAX_TIME_VALUES 5000
 #define SECONDS_PER_HOUR 3600
